@@ -111,6 +111,12 @@ public class Main {
                 .filter(l -> l.contains("RDAPValidationResult{") && l.contains("}"))
                 .findFirst()
                 .orElse("unknown");
+
+        // Extract the code
+        if (result.contains("RDAPValidationResult{")) {
+          result = result.substring(result.indexOf("RDAPValidationResult{"));
+        }
+
         return "data: " + result;
       } catch (IOException e) {
         LOGGER.severe("Failed to run command: " + e.getMessage());
