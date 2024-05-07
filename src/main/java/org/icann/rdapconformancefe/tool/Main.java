@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
@@ -65,7 +68,8 @@ public class Main {
     }
 
     @PostMapping("/check")
-    public String check(@RequestParam String url) {
+    @ResponseBody
+    public Map<String, String> check(@RequestParam String url) {
       LOGGER.info("Received URL: " + url);
 
       // Get the RDPT directory from the environment
@@ -117,15 +121,22 @@ public class Main {
           result = result.substring(result.indexOf("RDAPValidationResult{"));
         }
 
-        return "data: " + result;
+        // Create a map to store the result
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("data", result);
+
+        return resultMap;
       } catch (IOException e) {
         LOGGER.severe("Failed to run command: " + e.getMessage());
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt(); // restore interrupted status
         LOGGER.severe("Thread was interrupted: " + e.getMessage());
       }
+      // Create a map to store the error message
+      Map<String, String> errorMap = new HashMap<>();
+      errorMap.put("data", "bad");
 
-      return "data: bad";
+      return errorMap;
     } // end of post
   } // end of class
 } // end of main

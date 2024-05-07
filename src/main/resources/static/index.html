@@ -1,16 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hello, World!</title>
+    <title>RDAP Conformance Tool</title>
+    <!-- Include Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>Welcome to RDAP Conformance</p>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        <p>Welcome to RDAP Conformance</p>
+       
+        <form @submit.prevent="submitForm">
+            <label for="url">URL:</label><br>
+            <input type="text" id="url" v-model="url"><br>
+            <input type="submit" value="Submit" :disabled="isLoading"> <!-- Disable the button when loading -->
+            <span v-if="isLoading">Loading...</span> <!-- Show a loading message when loading -->
+        </form>
 
-    <form action="/check" method="post">
-        <label for="url">URL:</label><br>
-        <input type="text" id="url" name="url"><br>
-        <input type="submit" value="Submit">
-    </form>
+        <p>Server Response: {{ serverResponse }}</p> <!-- Display the server response -->
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                message: 'RDAP Conformance Tool',
+                url: '',
+                serverResponse: '', // Add a new data property to hold the server response
+                isLoading: false // Add a new data property to hold the loading state
+            },
+            methods: {
+              submitForm() {
+                this.isLoading = true; // Set loading state to true when form is submitted
+                // Handle form submission
+                fetch('/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `url=${encodeURIComponent(this.url)}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response data
+                    console.log(data);
+                    this.serverResponse = JSON.stringify(data); // Update the serverResponse property with the response data
+                    this.isLoading = false; // Set loading state to false when response is received
+                })
+                .catch(error => {
+                    // Handle the error
+                    console.error('Error:', error);
+                    this.serverResponse = 'Error: ' + error; // Update the serverResponse property with the error
+                    this.isLoading = false; // Set loading state to false when error is received
+                });
+              }
+            }
+        });
+    </script>
 </body>
 </html>
