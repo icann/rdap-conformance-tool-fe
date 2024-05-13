@@ -5,7 +5,9 @@
     <!-- Include Vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+   
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
   <div id="app" class="container mx-auto px-4 pt-10">
@@ -23,7 +25,8 @@
       <span v-if="isLoading" class="block mt-4">Loading...</span>
   </form>
     <p>
-      <pre class="text-xs" style="white-space: pre-wrap; word-wrap: break-word; max-width: 100%; background-color: white;">{{ formattedServerResponse }}</pre>
+      <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+      <!-- <pre class="text-xs" style="white-space: pre-wrap; word-wrap: break-word; max-width: 100%; background-color: white;">{{ formattedServerResponse }}</pre> -->
     </p>
   </div>
 </body>
@@ -38,12 +41,23 @@
               isLoading: false,
               useCheckEndpoint: true 
           },
+          mounted() {
+            hljs.highlightAll();
+          },
+          watch: {
+            formattedServerResponse() {
+                this.$nextTick(function () {
+                    this.highlightCode();
+                })
+            }
+          },
           computed: {
             formattedServerResponse: function() {
                 try {
                     let parsedResponse = JSON.parse(this.serverResponse);
                     if (parsedResponse.data) {
                       console.log('yeah, got it: ' + parsedResponse.data);
+                      // return JSON.stringify(parsedResponse.data, null, 2)
                       return parsedResponse.data;
                         // let innerData = JSON.parse(parsedResponse.data);
                         // return innerData.value;
@@ -55,9 +69,20 @@
                     // console.log('error: ', e);
                     return this.serverResponse;
                 }
+            },
+            highlightedServerResponse: function() {
+                if (this.formattedServerResponse) {
+                    // Highlight the code and return it as a string
+                    return hljs.highlight('json', this.formattedServerResponse).value;
+                } else {
+                    return 'Formatting Failure';
+                }
             }
           },
           methods: {
+            highlightCode() {
+                hljs.highlightAll();
+            },
             clearResponse: function() { 
                 this.serverResponse = '';
             },
