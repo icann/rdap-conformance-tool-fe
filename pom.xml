@@ -36,6 +36,13 @@
         <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>org.icann</groupId>
+      <artifactId>rdap-conformance</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+
+
 </dependencies>
 
     <build>

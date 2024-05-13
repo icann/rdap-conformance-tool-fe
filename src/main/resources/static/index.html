@@ -13,13 +13,15 @@
     <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
    
     <form @submit.prevent="submitForm" class="mb-8">
-        <label for="url" class="block mb-2">URL:</label>
-        <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full"> <!-- Adjusted size and padding here -->
-        <br>
-        <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
-        <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block"> <!-- Increased top margin here -->
-        <span v-if="isLoading" class="block mt-4">Loading...</span> <!-- Show a loading message when loading -->
-    </form>
+      <label for="url" class="block mb-2">URL:</label>
+      <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
+      <br>
+      <label for="switch" class="block mb-2">Switch to /check:</label>
+      <input type="checkbox" id="switch" v-model="useCheckEndpoint" class="mb-4">
+      <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
+      <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block">
+      <span v-if="isLoading" class="block mt-4">Loading...</span>
+  </form>
     <p>
       <pre class="text-xs" style="white-space: pre-wrap; word-wrap: break-word; max-width: 100%;">{{ formattedServerResponse }}</pre>
     </p>
@@ -32,8 +34,9 @@
           data: {
               message: 'RDAP Conformance Tool',
               url: '',
-              serverResponse: '', // Add a new data property to hold the server response
-              isLoading: false // Add a new data property to hold the loading state
+              serverResponse: '',
+              isLoading: false,
+              useCheckEndpoint: false 
           },
           computed: {
             formattedServerResponse: function() {
@@ -60,8 +63,8 @@
             },
             submitForm() {
               this.isLoading = true; // Set loading state to true when form is submitted
-              // Handle form submission
-              fetch('/check', {
+              let endpoint = this.useCheckEndpoint ? '/check' : '/old';
+              fetch(endpoint, {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/x-www-form-urlencoded',
