@@ -51,8 +51,15 @@ public class Main {
 
     @PostMapping("/check")
     @ResponseBody
-    public Map<String, String> check(@RequestParam String url) {
+    public Map<String, String> check(
+        @RequestParam String url,
+        @RequestParam(required = false) Boolean gltdRegistrar,
+        @RequestParam(required = false) Boolean gltdRegistry,
+        @RequestParam(required = false) Boolean thin) {
       LOGGER.info("Received URL: " + url);
+      LOGGER.info("GltdRegistrar: " + gltdRegistrar);
+      LOGGER.info("GltdRegistry: " + gltdRegistry);
+      LOGGER.info("Thin: " + thin);
 
       // Get the RDPT directory from the environment
       String rdpt = System.getenv("RDPT");
