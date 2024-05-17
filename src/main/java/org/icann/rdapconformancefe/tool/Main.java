@@ -108,13 +108,13 @@ public class Main {
 
         // Get the output as a list of strings
         List<String> output = Arrays.asList(baos.toString().split("\\n"));
-        output.forEach(System.out::println);
+        // output.forEach(System.out::println);
 
         for (String line : output) {
           System.out.println("<OUTPUT> " + line);
         }
         for (String line : output) {
-          System.out.println(line);
+          // System.out.println(line);
           if (line.startsWith("[RdapConformaceTool] ==> Results path is: ")) {
             resultsFile = line.substring("[RdapConformaceTool] ==> Results path is: ".length());
           }
@@ -135,7 +135,8 @@ public class Main {
         try {
           String fileContent = new String(Files.readAllBytes(Paths.get(resultsFile)));
           resultMap.put("data", fileContent);
-          System.out.println("Results file content: " + fileContent);
+          System.out.println("Got the file contents.");
+          // System.out.println("Results file content: " + fileContent);
         } catch (IOException e) {
           // LOGGER.error("Error reading file: " + resultsFile, e);
           System.out.println("Results file error: " + e.getMessage());

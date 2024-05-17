@@ -20,15 +20,15 @@
         <div class="flex space-x-4">
             <div>
                 <label for="gltdRegistrar" class="block mb-2">GltdRegistrar:</label>
-                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" class="mb-4">
+                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar.value)" class="mb-4">
             </div>
             <div>
                 <label for="gltdRegistry" class="block mb-2">GltdRegistry:</label>
-                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" class="mb-4">
+                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry.value)" class="mb-4">
             </div>
             <div>
                 <label for="thin" class="block mb-2">Thin:</label>
-                <input type="checkbox" id="thin" v-model="thin" class="mb-4" :disabled="!gltdRegistry">
+                <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin.value)" class="mb-4" :disabled="!gltdRegistry.value">
             </div>
         </div>
         <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
@@ -58,7 +58,7 @@
                 try {
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (parsedResponse.data) {
-                        console.log('yeah, got it: ' + parsedResponse.data);
+                        // console.log('yeah, got it: ' + parsedResponse.data);
                         return parsedResponse.data;
                     }
                     console.log('nope, not got it: ', parsedResponse);
@@ -103,10 +103,11 @@
             const submitForm = () => {
                 isLoading.value = true;
 
+                console.log('gltdRegistrarValue:', gltdRegistrar);
                 const urlValue = encodeURIComponent(url.value);
-                const gltdRegistrarValue = gltdRegistrar && gltdRegistrar.checked ? 1 : 0;
-                const gltdRegistryValue = gltdRegistry && gltdRegistry.checked ? 1 : 0;
-                const thinValue = thin && thin.checked ? 1 : 0;
+                const gltdRegistrarValue = gltdRegistrar.value ? 1 : 0;
+                const gltdRegistryValue = gltdRegistry.value ? 1 : 0;
+                const thinValue = thin.value ? 1 : 0;
 
                 console.log('urlValue:', urlValue);
                 console.log('gltdRegistrarValue:', gltdRegistrarValue);
@@ -145,7 +146,10 @@
                 highlightedServerResponse,
                 highlightCode,
                 clearResponse,
-                submitForm
+                submitForm,
+                gltdRegistrar,
+                gltdRegistry,
+                thin
             };
         }
     });
