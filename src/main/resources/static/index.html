@@ -20,15 +20,15 @@
         <div class="flex space-x-4">
             <div>
                 <label for="gltdRegistrar" class="block mb-2">GltdRegistrar:</label>
-                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar.value)" class="mb-4">
+                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
             </div>
             <div>
                 <label for="gltdRegistry" class="block mb-2">GltdRegistry:</label>
-                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry.value)" class="mb-4">
+                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
             </div>
             <div>
                 <label for="thin" class="block mb-2">Thin:</label>
-                <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin.value)" class="mb-4" :disabled="!gltdRegistry.value">
+                <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
             </div>
         </div>
         <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
@@ -84,6 +84,28 @@
                 }
             });
     
+            // Our Logic for the button choosing
+            watch(gltdRegistrar, (newVal) => {
+                if (newVal) {
+                    gltdRegistry.value = false;
+                }
+            });
+
+            watch(gltdRegistry, (newVal) => {
+                if (newVal) {
+                    gltdRegistrar.value = false;
+                }
+                if (!newVal) {
+                    thin.value = false;
+                }
+            });
+            
+            watch(gltdRegistry, (newVal) => {
+                if (!newVal) {
+                    thin.value = false;
+                }
+            });
+
             watch(formattedServerResponse, () => {
                 Vue.nextTick(() => {
                     highlightCode();
