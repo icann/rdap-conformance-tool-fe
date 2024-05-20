@@ -6,9 +6,9 @@ This is the front end for the RDAP Conformance Tool (https://github.com/icann/rd
 It is meant to be deployed as a standalone JAR file or as a Docker Container.
 To run as a container, first build it:
 
-  docker build -t rdapctfe .
+  `docker build -t rdapctfe .`
 
 Then run it:
 
-  docker run -p 8080:8080 rdapctfe
+  `docker run -p 8080:8080 rdapctfe`
 
