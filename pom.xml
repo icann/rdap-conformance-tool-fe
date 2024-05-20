@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.icann.rdapconformancefe</groupId>
-    <artifactId>tool</artifactId>
+    <artifactId>rdapctfe</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

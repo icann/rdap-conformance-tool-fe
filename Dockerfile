@@ -9,7 +9,8 @@ EXPOSE 8080
 WORKDIR /app
 RUN chown nobody /app
 
-ARG JAR_FILE=target/tool-1.0-SNAPSHOT.jar
+ARG JAR_FILE=target/rdapctfe-1.0-SNAPSHOT.jar
+
 ADD ${JAR_FILE} app.jar
 ADD rdapct-config.json rdapct-config.json
 
