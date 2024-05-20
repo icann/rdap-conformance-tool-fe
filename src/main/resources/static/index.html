@@ -3,7 +3,7 @@
 <head>
     <title>RDAP Conformance Tool</title>
     <!-- Include Vue.js -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/vue@3"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
@@ -13,105 +13,169 @@
   <div id="app" class="container mx-auto px-4 pt-10">
     <h1 class="text-4xl mb-4 text-blue-500">{{ message }}</h1>
     <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
-   
     <form @submit.prevent="submitForm" class="mb-8">
-      <label for="url" class="block mb-2">URL:</label>
-      <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
-      <br>
-      <!-- <label for="switch" class="block mb-2">Switch to /check:</label>
-      <input type="checkbox" id="switch" v-model="useCheckEndpoint" class="mb-4"> -->
-      <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
-      <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block">
-      <span v-if="isLoading" class="block mt-4">Loading...</span>
-  </form>
+        <label for="url" class="block mb-2">URL:</label>
+        <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
+        <br>
+        <div class="flex space-x-4">
+            <div>
+                <label for="gltdRegistrar" class="block mb-2">GltdRegistrar:</label>
+                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
+            </div>
+            <div>
+                <label for="gltdRegistry" class="block mb-2">GltdRegistry:</label>
+                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
+            </div>
+            <div>
+                <label for="thin" class="block mb-2">Thin:</label>
+                <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
+            </div>
+        </div>
+        <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
+        <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block">
+        <span v-if="isLoading" class="block mt-4">Loading...</span>
+    </form>
     <p>
       <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
-      <!-- <pre class="text-xs" style="white-space: pre-wrap; word-wrap: break-word; max-width: 100%; background-color: white;">{{ formattedServerResponse }}</pre> -->
     </p>
   </div>
 </body>
 
   <script>
-      new Vue({
-          el: '#app',
-          data: {
-              message: 'RDAP Conformance Tool',
-              url: '',
-              serverResponse: '',
-              isLoading: false,
-              useCheckEndpoint: true 
-          },
-          mounted() {
-            hljs.highlightAll();
-          },
-          watch: {
-            formattedServerResponse() {
-                this.$nextTick(function () {
-                    this.highlightCode();
-                })
-            }
-          },
-          computed: {
-            formattedServerResponse: function() {
+     const { ref, computed, watch, onMounted } = Vue;
+    
+    const app = Vue.createApp({
+        setup() {
+          const message = ref('RDAP Conformance Tool');
+          const url = ref('');
+          const serverResponse = ref('');
+          const isLoading = ref(false);
+          const gltdRegistrar = ref(false);
+          const gltdRegistry = ref(false);
+          const thin = ref(false);
+    
+            const formattedServerResponse = computed(() => {
                 try {
-                    let parsedResponse = JSON.parse(this.serverResponse);
+                    let parsedResponse = JSON.parse(serverResponse.value);
                     if (parsedResponse.data) {
-                      console.log('yeah, got it: ' + parsedResponse.data);
-                      // return JSON.stringify(parsedResponse.data, null, 2)
-                      return parsedResponse.data;
-                        // let innerData = JSON.parse(parsedResponse.data);
-                        // return innerData.value;
+                        // console.log('yeah, got it: ' + parsedResponse.data);
+                        return parsedResponse.data;
                     }
                     console.log('nope, not got it: ', parsedResponse);
                     return JSON.stringify(parsedResponse, null, 2); // stringify with indentation
                 } catch(e) {
-                    // If it's not JSON, return as is
-                    // console.log('error: ', e);
-                    return this.serverResponse;
+                    return serverResponse.value;
                 }
-            },
-            highlightedServerResponse: function() {
-                if (this.formattedServerResponse) {
+            });
+            
+            function escapeHtml(html) {
+               return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            const highlightedServerResponse = computed(() => {
+                if (formattedServerResponse.value) {
+                    // Escape any HTML in the code block
+                    const escapedCode = escapeHtml(formattedServerResponse.value);
+                    //console.log('we are escaping the code: ', escapedCode)
                     // Highlight the code and return it as a string
-                    return hljs.highlight('json', this.formattedServerResponse).value;
+                    return hljs.highlight(escapedCode, {language: 'json'}).value;
                 } else {
                     return '';
                 }
-            }
-          },
-          methods: {
-            highlightCode() {
+            });
+    
+            // Our Logic for the button choosing
+            watch(gltdRegistrar, (newVal) => {
+                if (newVal) {
+                    gltdRegistry.value = false;
+                }
+            });
+
+            watch(gltdRegistry, (newVal) => {
+                if (newVal) {
+                    gltdRegistrar.value = false;
+                }
+                if (!newVal) {
+                    thin.value = false;
+                }
+            });
+            
+            watch(gltdRegistry, (newVal) => {
+                if (!newVal) {
+                    thin.value = false;
+                }
+            });
+
+            watch(formattedServerResponse, () => {
+                Vue.nextTick(() => {
+                    highlightCode();
+                });
+            });
+    
+            const highlightCode = () => {
+               document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+               });
+            };
+    
+            const clearResponse = () => { 
+                serverResponse.value = '';
+            };
+    
+            const submitForm = () => {
+                isLoading.value = true;
+
+                console.log('gltdRegistrarValue:', gltdRegistrar);
+                const urlValue = encodeURIComponent(url.value);
+                const gltdRegistrarValue = gltdRegistrar.value ? 1 : 0;
+                const gltdRegistryValue = gltdRegistry.value ? 1 : 0;
+                const thinValue = thin.value ? 1 : 0;
+
+                console.log('urlValue:', urlValue);
+                console.log('gltdRegistrarValue:', gltdRegistrarValue);
+                console.log('gltdRegistryValue:', gltdRegistryValue);
+                console.log('thinValue:', thinValue);
+
+                const body = `url=${urlValue}&gltdRegistrar=${gltdRegistrarValue}&gltdRegistry=${gltdRegistryValue}&thin=${thinValue}`;
+
+                fetch('/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: body,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    serverResponse.value = JSON.stringify(data);
+                    isLoading.value = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            };
+
+            onMounted(() => {
                 hljs.highlightAll();
-            },
-            clearResponse: function() { 
-                this.serverResponse = '';
-            },
-            submitForm() {
-              this.isLoading = true; // Set loading state to true when form is submitted
-              let endpoint = this.useCheckEndpoint ? '/check' : '/old';
-              fetch(endpoint, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                  },
-                  body: `url=${encodeURIComponent(this.url)}`,
-              })
-              .then(response => response.json())
-              .then(data => {
-                  // Handle the response data
-                  console.log(data);
-                  this.serverResponse = JSON.stringify(data); // Update the serverResponse property with the response data
-                  this.isLoading = false; // Set loading state to false when response is received
-              })
-              .catch(error => {
-                  // Handle the error
-                  console.error('Error:', error);
-                  this.serverResponse = 'Error: ' + error; // Update the serverResponse property with the error
-                  this.isLoading = false; // Set loading state to false when error is received
-              });
-            }
-          }
-      });
+            });
+    
+            return {
+                message,
+                url,
+                serverResponse,
+                isLoading,
+                formattedServerResponse,
+                highlightedServerResponse,
+                highlightCode,
+                clearResponse,
+                submitForm,
+                gltdRegistrar,
+                gltdRegistry,
+                thin
+            };
+        }
+    });
+    
+    app.mount('#app');
   </script>
-</body>
 </html>
