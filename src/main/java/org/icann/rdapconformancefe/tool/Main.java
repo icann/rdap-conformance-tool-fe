@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,27 +53,53 @@ public class Main {
         @RequestParam(required = false) String gltdRegistrar,
         @RequestParam(required = false) String gltdRegistry,
         @RequestParam(required = false) String thin) {
+
+      Map<String, String> resultMap = new HashMap<>();
+
+      // Check the rules
+      if ("1".equals(gltdRegistrar) && ("1".equals(gltdRegistry) || "1".equals(thin))) {
+        resultMap.put("data", "bad arguments");
+        return resultMap;
+      }
+
+      if ("1".equals(gltdRegistrar) && "1".equals(thin)) {
+        resultMap.put("data", "bad arguments");
+        return resultMap;
+      }
+
       // debug stuff Sysout b/c the redirects of streams messes with Springs logger
       System.out.println("Received URL: " + url);
       System.out.println("GltdRegistrar: " + gltdRegistrar);
       System.out.println("GltdRegistry: " + gltdRegistry);
       System.out.println("Thin: " + thin);
-      // we do nothing with the options for now, logic for that comes next
 
       // Get the RDPT directory from the environment
       String rdpt = System.getenv("RDPT");
       Pattern pattern = Pattern.compile(".*  : (.*)$");
 
       // Construct the arguments
-      String[] args =
-          new String[] {
-            "--use-local-datasets",
-            "-v",
-            "--print-results-path",
-            "-c",
-            rdpt + "/rdapct-config.json",
-            url
-          };
+      List<String> argsList = new ArrayList<>();
+      argsList.add("--use-local-datasets");
+      argsList.add("-v");
+      argsList.add("--print-results-path");
+      argsList.add("-c");
+      argsList.add(rdpt + "/rdapct-config.json");
+      argsList.add(url);
+
+      if ("1".equals(gltdRegistrar)) {
+        argsList.add("--gtld-registrar");
+      }
+
+      if ("1".equals(gltdRegistry)) {
+        argsList.add("--gtld-registry");
+      }
+
+      if ("1".equals(thin)) {
+        argsList.add("--thin");
+      }
+
+      // Setup the args properly
+      String[] args = argsList.toArray(new String[0]);
 
       // We shouldn't need a Callable, Spring runs in a separate thread
       String resultsFile = null;
@@ -131,8 +158,6 @@ public class Main {
       System.out.println("Run is finished, setting up the data to return it.");
       // Print the output
       // output.forEach(System.out::println);
-      // Create a map to store the result
-      Map<String, String> resultMap = new HashMap<>();
 
       if (resultsFile != null) {
         try {
