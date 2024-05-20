@@ -13,7 +13,7 @@ Then install it:
 
 ## Build Front End
 
-Buid as follows
+Build as follows
   `mvn clean install && mvn package`
 
 This will build the jar locally as:
