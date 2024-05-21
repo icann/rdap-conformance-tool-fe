@@ -7,7 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
-   
+    <style>
+      body ul {
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+            margin-left: 20px !important;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.active {
+            background-color: #ddd;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
   <div id="app" class="container mx-auto px-4 pt-10">
@@ -35,10 +59,19 @@
         <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block">
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
-    <p>
-      <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
-    </p>
-  </div>
+    <div class="tabs">
+        <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
+        <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
+      </div>
+  
+      <div v-if="activeTab === 'json'" class="tab-content">
+        <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+      </div>
+  
+      <div v-if="activeTab === 'html'" class="tab-content">
+        <div v-html="htmlServerResponse"></div>
+      </div>
+    </div>
 </body>
 
   <script>
@@ -46,13 +79,15 @@
     
     const app = Vue.createApp({
         setup() {
-          const message = ref('RDAP Conformance Tool');
-          const url = ref('');
-          const serverResponse = ref('');
-          const isLoading = ref(false);
-          const gltdRegistrar = ref(false);
-          const gltdRegistry = ref(false);
-          const thin = ref(false);
+            const message = ref('RDAP Conformance Tool');
+            const url = ref('');
+            const serverResponse = ref('');
+            const isLoading = ref(false);
+            const gltdRegistrar = ref(false);
+            const gltdRegistry = ref(false);
+            const thin = ref(false);
+            const htmlServerResponse = ref('');
+            const activeTab = ref('json');
     
             const formattedServerResponse = computed(() => {
                 try {
@@ -67,7 +102,36 @@
                     return serverResponse.value;
                 }
             });
-            
+
+          
+            function jsonToHtml(json, depth = 0) {
+                console.log('jsonToHtml called');
+                if (depth > 5) {
+                    return '<li>Recursion limit reached</li>';
+                }
+                let html = '<ul>';
+                for (let key in json) {
+                    html += '<li>';
+                    html += '<strong>' + escapeHtml(key) + ': </strong>';
+                    if (Array.isArray(json[key])) {
+                        for (let value of json[key]) {
+                            if (typeof value === 'object' && value !== null) {
+                                html += jsonToHtml(value, depth + 1);
+                            } else {
+                                html += escapeHtml(String(value));
+                            }
+                            html += '<p>&nbsp;</p>';  // Add a paragraph after each list
+                        }
+                    } else if (typeof json[key] === 'object' && json[key] !== null && !(json[key] instanceof String)) {
+                        html += jsonToHtml(json[key], depth + 1);
+                    } else {
+                        html += escapeHtml(String(json[key]));
+                    }
+                    html += '</li>';
+                }
+                html += '</ul>';
+                return html;
+            }
             function escapeHtml(html) {
                return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
@@ -149,6 +213,17 @@
                 .then(data => {
                     serverResponse.value = JSON.stringify(data);
                     isLoading.value = false;
+                    let parsedResponse = JSON.parse(serverResponse.value);
+                    if (typeof parsedResponse.data === 'string') {
+                        try {
+                            parsedResponse.data = JSON.parse(parsedResponse.data);
+                        } catch (e) {
+                            console.error('Error parsing data property:', e);
+                        }
+                    }
+                    let html = jsonToHtml(parsedResponse);
+                    console.log('html:', html);
+                    htmlServerResponse.value = html;
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -171,7 +246,9 @@
                 submitForm,
                 gltdRegistrar,
                 gltdRegistry,
-                thin
+                thin,
+                htmlServerResponse,
+                activeTab 
             };
         }
     });
