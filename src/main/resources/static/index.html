@@ -60,17 +60,19 @@
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
     <div class="tabs">
-        <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
         <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
-      </div>
-  
-      <div v-if="activeTab === 'json'" class="tab-content">
-        <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+        <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
       </div>
   
       <div v-if="activeTab === 'html'" class="tab-content">
         <div v-html="htmlServerResponse"></div>
       </div>
+
+      <div v-if="activeTab === 'json'" class="tab-content">
+        <button @click="copyToClipboard">Copy</button>
+        <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+    </div>
+  
     </div>
 </body>
 
@@ -87,7 +89,7 @@
             const gltdRegistry = ref(false);
             const thin = ref(false);
             const htmlServerResponse = ref('');
-            const activeTab = ref('json');
+            const activeTab = ref('html');
     
             const formattedServerResponse = computed(() => {
                 try {
@@ -221,7 +223,7 @@
                             console.error('Error parsing data property:', e);
                         }
                     }
-                    let html = jsonToHtml(parsedResponse);
+                    let html = jsonToHtml(parsedResponse.data);
                     console.log('html:', html);
                     htmlServerResponse.value = html;
                 })
@@ -233,6 +235,15 @@
             onMounted(() => {
                 hljs.highlightAll();
             });
+
+            const copyToClipboard = () => {
+                navigator.clipboard.writeText(serverResponse.value)
+                    .then(() => {
+                        console.log('Copying to clipboard was successful!');
+                    }, err => {
+                        console.error('Could not copy text: ', err);
+                    });
+            };
     
             return {
                 message,
@@ -248,7 +259,8 @@
                 gltdRegistry,
                 thin,
                 htmlServerResponse,
-                activeTab 
+                activeTab,
+                copyToClipboard
             };
         }
     });
