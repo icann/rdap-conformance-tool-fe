@@ -31,17 +31,42 @@
         .tab-content {
             margin-top: 20px;
         }
+
+        .tabs {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+
+        .tabs button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+
+        .tabs button:hover {
+            background-color: #ddd;
+        }
+
+        .tabs button.active {
+            background-color: #ccc;
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
-  <div id="app" class="container mx-auto px-4 pt-10">
-    <h1 class="text-4xl mb-4 text-blue-500">{{ message }}</h1>
+  <div id="app" class="container mx-auto px-4 pt-10 mb-8">
+    <h1 class="text-4xl mb-4 text-blue-500">RDAP Conformance Tool</h1>
     <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
     <form @submit.prevent="submitForm" class="mb-8">
         <label for="url" class="block mb-2">URL:</label>
         <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
         <br>
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 mt-4">
             <div>
                 <label for="gltdRegistrar" class="block mb-2">GltdRegistrar:</label>
                 <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
@@ -55,23 +80,26 @@
                 <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
             </div>
         </div>
-        <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 block">
-        <input type="reset" value="Clear"  @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 block">
+        <div class="flex justify-start" v-if="!isLoading">
+            <input type="reset" value="Clear" @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 mr-4">
+            <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6">
+        </div>
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
     <div class="tabs">
         <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
         <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
-      </div>
-  
-      <div v-if="activeTab === 'html'" class="tab-content">
-        <div v-html="htmlServerResponse"></div>
-      </div>
+    </div>
 
-      <div v-if="activeTab === 'json'" class="tab-content">
-        <button @click="copyToClipboard">Copy</button>
+    <div v-if="activeTab === 'html'" class="tab-content bg-white border border-gray-300 p-4">
+        <div v-html="htmlServerResponse"></div>
+    </div>
+    
+    <div v-if="activeTab === 'json'" class="tab-content bg-white border border-gray-300 p-4">
         <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
     </div>
+    
+    <button v-if="activeTab === 'json'" @click="copyToClipboard" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mb-4">Copy</button>
   
     </div>
 </body>
@@ -81,7 +109,6 @@
     
     const app = Vue.createApp({
         setup() {
-            const message = ref('RDAP Conformance Tool');
             const url = ref('');
             const serverResponse = ref('');
             const isLoading = ref(false);
@@ -189,6 +216,11 @@
             };
     
             const submitForm = () => {
+                if (!url.value) {
+                    console.error('URL is required');
+                    return;
+                }
+
                 isLoading.value = true;
 
                 console.log('gltdRegistrarValue:', gltdRegistrar);
@@ -246,7 +278,6 @@
             };
     
             return {
-                message,
                 url,
                 serverResponse,
                 isLoading,
