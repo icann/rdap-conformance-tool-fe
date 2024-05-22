@@ -3,24 +3,9 @@ ICANN RDAP Conformance Tool Front End
 
 This is the front end for the RDAP Conformance Tool (https://github.com/icann/rdap-conformance-tool)
 
-## Conformance Tool Dependancy
-You will first need to download the modified Cobenian version of the conformance tool at (https://github.com/Cobenian/rdap-conformance-tool) and build the jar:
-  `mvn package -DskipTests`
 
-Then install it:
-  `mvn install:install-file -Dfile=./tool/target/rdapct-1.0.2.jar -DgroupId=org.icann -DartifactId=rdap-conformance -Dversion=1.0.2 -Dpackaging=jar`
-
-
-## Build Front End
-
-Build as follows
-  `mvn clean install && mvn package`
-
-This will build the jar locally as:
-  `target/rdapctfe-1.0-SNAPSHOT.ja`
-
-It is meant to be deployed as a standalone JAR file or as a Docker Container.
-To run as a container, first build it:
+It is meant to be currently deployed as a Docker Container, all you will need is the Dockerfile.
+Copy the Dockerfile somewhere and build it:
 
   `docker build -t rdapctfe .`
 

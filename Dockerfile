@@ -1,18 +1,21 @@
 FROM alpine:latest
 RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
-RUN apk update && apk add openjdk21-jre
+RUN apk update && apk add openjdk21-jre maven git
 
 LABEL maintainer="adam@cobenian.com"
 
-EXPOSE 8080
+RUN git clone -b cobenian-dev https://github.com/Cobenian/rdap-conformance-tool.git
+RUN cd rdap-conformance-tool && mvn package -DskipTests && mvn install:install-file -Dfile=./tool/target/rdapct-1.0.2.jar -DgroupId=org.icann -DartifactId=rdap-conformance -Dversion=1.0.2 -Dpackaging=jar
+
+RUN mkdir /app && \
+    git clone https://github.com/Cobenian/rdap-conformance-tool-fe && \
+    cd rdap-conformance-tool-fe && \
+    mvn package && \
+    cp target/rdapctfe-1.0-SNAPSHOT.jar /app/app.jar && \
+    cp rdapct-config.json /app/rdapct-config.json
 
 WORKDIR /app
 RUN chown nobody /app
-
-ARG JAR_FILE=target/rdapctfe-1.0-SNAPSHOT.jar
-
-ADD ${JAR_FILE} app.jar
-ADD rdapct-config.json rdapct-config.json
 
 ENV RDPT /app
 
