@@ -56,6 +56,14 @@
         .tabs button.active {
             background-color: #ccc;
         }
+
+        .warning-class {
+            color: orange;
+        }
+
+        .error-class {
+            color: red;
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
@@ -140,7 +148,13 @@
                 }
                 let html = '<ul>';
                 for (let key in json) {
-                    html += '<li>';
+                    let className = '';
+                    if (key === 'warning') {
+                        className = 'warning-class';
+                    } else if (key === 'error') {
+                        className = 'error-class';
+                    }
+                    html += `<li class="${className}">`;
                     html += '<strong>' + escapeHtml(key) + ': </strong>';
                     if (Array.isArray(json[key])) {
                         for (let value of json[key]) {

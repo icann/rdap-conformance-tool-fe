@@ -3,7 +3,6 @@ package org.icann.rdapconformancefe.tool;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -105,15 +104,12 @@ public class Main {
       // Alternative way to run the tool
 
       // this gets the config file from the classpath
-      URL rdapConfigResource = getClass().getClassLoader().getResource("rdap-config.json");
-      if (rdapConfigResource != null) {
-        System.out.println("Found the resource: " + rdapConfigResource.getFile());
-      } else {
-        System.out.println("Resource not found.");
-      }
-
-      
-
+      // URL rdapConfigResource = getClass().getClassLoader().getResource("rdapct-config.json");
+      // if (rdapConfigResource != null) {
+      //   System.out.println("Found the resource: " + rdapConfigResource.getFile());
+      // } else {
+      //   System.out.println("Config file not found.");
+      // }
 
       // We shouldn't need a Callable, Spring runs in a separate thread
       String resultsFile = null;
@@ -142,7 +138,7 @@ public class Main {
 
         // Get the output as a list of strings
         List<String> output = Arrays.asList(baos.toString().split("\\n"));
-        // output.forEach(System.out::println);
+        output.forEach(System.out::println);
 
         for (String line : output) {
           String lineWithoutAnsi = line.replaceAll("\u001B\\[[;\\d]*m", "");
