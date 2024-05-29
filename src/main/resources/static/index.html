@@ -64,6 +64,25 @@
         .error-class {
             color: red;
         }
+
+        .warning-class > .block-container {
+            border: 1px solid #1a1919;
+            padding: 5px;
+        }
+
+        .error-class > .block-container {
+            border: 1px solid #1a1919;
+            padding: 5px;
+        }
+
+        .block-container:nth-of-type(odd) {
+             background-color: #ffffff; /* white */
+        }
+
+        .block-container:nth-of-type(even) {
+            background-color: #efecec; /* grey */
+        }
+
     </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
@@ -130,7 +149,6 @@
                 try {
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (parsedResponse.data) {
-                        // console.log('yeah, got it: ' + parsedResponse.data);
                         return parsedResponse.data;
                     }
                     console.log('nope, not got it: ', parsedResponse);
@@ -146,16 +164,16 @@
                 if (depth > 5) {
                     return '<li>Recursion limit reached</li>';
                 }
-                let html = '<ul>';
+                let className = '';
+                let html = '<ul class="alternating-colors block-container">';
                 for (let key in json) {
-                    let className = '';
                     if (key === 'warning') {
                         className = 'warning-class';
                     } else if (key === 'error') {
                         className = 'error-class';
                     }
                     html += `<li class="${className}">`;
-                    html += '<strong>' + escapeHtml(key) + ': </strong>';
+                    html += `<strong>${escapeHtml(key)}</strong>`;
                     if (Array.isArray(json[key])) {
                         for (let value of json[key]) {
                             if (typeof value === 'object' && value !== null) {
@@ -175,16 +193,14 @@
                 html += '</ul>';
                 return html;
             }
+
             function escapeHtml(html) {
-               return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
 
             const highlightedServerResponse = computed(() => {
                 if (formattedServerResponse.value) {
-                    // Escape any HTML in the code block
                     const escapedCode = escapeHtml(formattedServerResponse.value);
-                    //console.log('we are escaping the code: ', escapedCode)
-                    // Highlight the code and return it as a string
                     return hljs.highlight(escapedCode, {language: 'json'}).value;
                 } else {
                     return '';
