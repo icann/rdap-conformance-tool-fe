@@ -3,6 +3,7 @@ package org.icann.rdapconformancefe.tool;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,18 +34,16 @@ public class Main {
     SpringApplication.run(Main.class, args);
   }
 
+  // Method to set a private field using reflection
+  public static void setPrivateField(Object object, String fieldName, Object value)
+      throws NoSuchFieldException, IllegalAccessException {
+    Field field = object.getClass().getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(object, value);
+  }
+
   @RestController
   public class SearchController {
-
-    // public String findValidationResult(List<String> output) {
-    //   for (String line : output) {
-    //     if (line.contains("RDAPValidationResult")) {
-    //       System.out.println("XXX Found the line: " + line);
-    //       return line;
-    //     }
-    //   }
-    //   return null; // or some default value
-    // }
 
     @PostMapping("/check")
     @ResponseBody
