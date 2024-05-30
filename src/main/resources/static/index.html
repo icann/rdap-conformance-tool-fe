@@ -65,6 +65,10 @@
             color: red;
         }
 
+        /* strong {
+            color: rgb(63, 60, 60);
+        } */
+
         .warning-class > .block-container {
             border: 1px solid #1a1919;
             padding: 5px;
@@ -173,7 +177,7 @@
                         className = 'error-class';
                     }
                     html += `<li class="${className}">`;
-                    html += `<strong>${escapeHtml(key)}</strong>`;
+                    html += `<strong>${escapeHtml(key)}: </strong>`;
                     if (Array.isArray(json[key])) {
                         for (let value of json[key]) {
                             if (typeof value === 'object' && value !== null) {
@@ -243,6 +247,8 @@
     
             const clearResponse = () => { 
                 serverResponse.value = '';
+                htmlServerResponse.value = '';
+                highlightedServerResponse.value = '';
             };
     
             const submitForm = () => {

@@ -15,11 +15,23 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
   private boolean isGtldRegistrar;
   private boolean isGtldRegistry;
   private boolean isThin;
+  private boolean isVerbose;
   private RDAPQueryType queryType;
-  public String configurationFile;
+  private boolean dependantRdapProfileGtld;
+  private String configurationFile;
 
-  // Implement the methods from the interface here
-  // For example:
+  public void setConfigurationFile(String configurationFile) {
+    this.configurationFile = configurationFile;
+  }
+
+  public void setVerbose(boolean isVerbose) {
+    this.isVerbose = isVerbose;
+  }
+
+  public boolean isVerbose() {
+    return this.isVerbose;
+  }
+
   @Override
   public URI getUri() {
     return this.uri;
@@ -56,12 +68,9 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
     this.useLocalDatasets = useLocalDatasets;
   }
 
-  public boolean isUseRdapProfileFeb2019() {
+  @Override
+  public boolean useRdapProfileFeb2019() {
     return this.useRdapProfileFeb2019;
-  }
-
-  public void setUseRdapProfileFeb2019(boolean useRdapProfileFeb2019) {
-    this.useRdapProfileFeb2019 = useRdapProfileFeb2019;
   }
 
   @Override
@@ -69,13 +78,13 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
     return this.isGtldRegistrar;
   }
 
-  public void setGtldRegistrar(boolean isGtldRegistrar) {
-    this.isGtldRegistrar = isGtldRegistrar;
-  }
-
   @Override
   public boolean isGtldRegistry() {
     return this.isGtldRegistry;
+  }
+
+  public void setGtldRegistrar(boolean isGtldRegistrar) {
+    this.isGtldRegistrar = isGtldRegistrar;
   }
 
   public void setGtldRegistry(boolean isGtldRegistry) {
@@ -112,11 +121,6 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
 
       throw ex;
     }
-  }
-
-  @Override
-  public boolean useRdapProfileFeb2019() {
-    return this.useRdapProfileFeb2019;
   }
 
   @Override

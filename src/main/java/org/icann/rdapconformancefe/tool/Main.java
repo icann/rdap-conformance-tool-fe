@@ -1,27 +1,24 @@
 package org.icann.rdapconformancefe.tool;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.*;
-import org.icann.rdapconformance.tool.RdapConformanceTool;
+import org.icann.rdapconformance.validator.workflow.FileSystem;
+import org.icann.rdapconformance.validator.workflow.LocalFileSystem;
+import org.icann.rdapconformance.validator.workflow.rdap.http.RDAPHttpValidator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import picocli.CommandLine;
 
 @SpringBootApplication
 public class Main {
@@ -32,14 +29,6 @@ public class Main {
     LOGGER.info("Starting the application..");
     // LOGGER.setLevel(Level.DEBUG);
     SpringApplication.run(Main.class, args);
-  }
-
-  // Method to set a private field using reflection
-  public static void setPrivateField(Object object, String fieldName, Object value)
-      throws NoSuchFieldException, IllegalAccessException {
-    Field field = object.getClass().getDeclaredField(fieldName);
-    field.setAccessible(true);
-    field.set(object, value);
   }
 
   @RestController
@@ -76,97 +65,44 @@ public class Main {
       String rdpt = System.getenv("RDPT");
       Pattern pattern = Pattern.compile(".*  : (.*)$");
 
-      // Construct the arguments
-      List<String> argsList = new ArrayList<>();
-      argsList.add("--use-local-datasets");
-      argsList.add("-v");
-      argsList.add("--print-results-path");
-      argsList.add("-c");
-      argsList.add(rdpt + "/rdapct-config.json");
-      argsList.add(url);
-
-      if ("1".equals(gltdRegistrar)) {
-        argsList.add("--gtld-registrar");
-      }
-
-      if ("1".equals(gltdRegistry)) {
-        argsList.add("--gtld-registry");
-      }
-
-      if ("1".equals(thin)) {
-        argsList.add("--thin");
-      }
-
-      // Setup the args properly
-      String[] args = argsList.toArray(new String[0]);
-
-      // Alternative way to run the tool
-
-      // this gets the config file from the classpath
-      // URL rdapConfigResource = getClass().getClassLoader().getResource("rdapct-config.json");
-      // if (rdapConfigResource != null) {
-      //   System.out.println("Found the resource: " + rdapConfigResource.getFile());
-      // } else {
-      //   System.out.println("Config file not found.");
-      // }
-
       // We shouldn't need a Callable, Spring runs in a separate thread
       String resultsFile = null;
       try {
-        // Create a new ByteArrayOutputStream to capture the output
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
+        FileSystem fileSystem = new LocalFileSystem();
+        WebRDAPConfiguration configuration = new WebRDAPConfiguration();
+        configuration.setUseLocalDatasets(true);
+        configuration.setUri(new URI(url));
+        configuration.setConfigurationFile(rdpt + "/rdapct-config.json");
+        configuration.setMaxRedirects(3);
+        configuration.setTimeout(20);
+        configuration.setVerbose(true);
 
-        // Save the old System.out and System.err
-        PrintStream oldOut = System.out;
-        PrintStream oldErr = System.err;
-
-        // Redirect System.out and System.err to the PrintStream
-        System.setOut(ps);
-        System.setErr(ps);
-
-        // Create a new CommandLine instance
-        CommandLine cmd = new CommandLine(new RdapConformanceTool());
-
-        // Execute the RdapConformanceTool with the arguments
-        int exitCode = cmd.execute(args);
-
-        // Restore the old System.out and System.err
-        System.setOut(oldOut);
-        System.setErr(oldErr);
-
-        // Get the output as a list of strings
-        List<String> output = Arrays.asList(baos.toString().split("\\n"));
-        output.forEach(System.out::println);
-
-        for (String line : output) {
-          String lineWithoutAnsi = line.replaceAll("\u001B\\[[;\\d]*m", "");
-          // System.out.println("<OUTPUT> " + line);
-          Matcher matcher = pattern.matcher(lineWithoutAnsi);
-          if (matcher.find()) {
-            String message = matcher.group(1);
-            if (!message.startsWith("X509Certificate:")) {
-              // System.out.println("!Found!: " + message);
-            }
-          } else {
-            // System.out.println("XXMISS<<" + lineWithoutAnsi + ">>");
-          }
+        if ("1".equals(gltdRegistrar)) {
+          configuration.setGtldRegistrar(true);
         }
-        for (String line : output) {
-          // System.out.println(line);
-          if (line.startsWith("[RdapConformaceTool] ==> Results path is: ")) {
-            resultsFile = line.substring("[RdapConformaceTool] ==> Results path is: ".length());
-          }
+
+        if ("1".equals(gltdRegistry)) {
+          configuration.setGtldRegistry(true);
         }
+
+        if ("1".equals(thin)) {
+          configuration.setThin(true);
+        }
+
+        System.out.println("Configuration is set up.");
+        RDAPHttpValidator validator = new RDAPHttpValidator(configuration, fileSystem);
+        System.out.println("Validator is set up, run it");
+        Integer vret = validator.validate();
+        resultsFile = validator.getResultsPath();
+        System.out.println("Validator is finished, get the results");
+        System.out.println("Results file: " + resultsFile);
+        System.out.println("Results file is set.");
       } catch (Exception e) {
         // Handle exception
         List<String> output = Collections.singletonList("Error: " + e.getMessage());
+        output.forEach(System.out::println);
       }
-      // After restoring System.out and System.err
-      // LOGGER = Logger.getLogger(Main.class.getName());
       System.out.println("Run is finished, setting up the data to return it.");
-      // Print the output
-      // output.forEach(System.out::println);
 
       if (resultsFile != null) {
         try {
@@ -179,6 +115,7 @@ public class Main {
           resultMap.put("data", "error");
         }
       } else {
+        System.out.println("No results file.");
         resultMap.put("data", "ok");
       }
 
