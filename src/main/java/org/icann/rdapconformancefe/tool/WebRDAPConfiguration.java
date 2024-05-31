@@ -20,8 +20,12 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
   private boolean dependantRdapProfileGtld;
   private String configurationFile;
 
-  public void setConfigurationFile(String configurationFile) {
-    this.configurationFile = configurationFile;
+  public boolean isDependantRdapProfileGtld() {
+    return dependantRdapProfileGtld;
+  }
+
+  public void setDependantRdapProfileGtld(boolean dependantRdapProfileGtld) {
+    this.dependantRdapProfileGtld = dependantRdapProfileGtld;
   }
 
   public void setVerbose(boolean isVerbose) {
@@ -107,6 +111,10 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
 
   public void setQueryType(RDAPQueryType queryType) {
     this.queryType = queryType;
+  }
+
+  public void setConfigurationFile(String configurationFile) {
+    this.configurationFile = configurationFile;
   }
 
   @Override

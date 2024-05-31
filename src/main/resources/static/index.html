@@ -114,6 +114,7 @@
         <div class="flex justify-start" v-if="!isLoading">
             <input type="reset" value="Clear" @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 mr-4">
             <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6">
+            <button v-if="activeTab === 'json' && showCopyButton" @click.prevent="copyAndSetCopied" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 ml-4" :class="{ 'bg-gray-500': copied }">{{ copied ? 'Copied' : 'Copy' }}</button>
         </div>
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
@@ -130,8 +131,7 @@
         <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
     </div>
     
-    <button v-if="activeTab === 'json'" @click="copyToClipboard" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mb-4">Copy</button>
-  
+
     </div>
 </body>
 
@@ -148,6 +148,8 @@
             const thin = ref(false);
             const htmlServerResponse = ref('');
             const activeTab = ref('html');
+            const copied = ref(false);
+            const showCopyButton = ref(false);
     
             const formattedServerResponse = computed(() => {
                 try {
@@ -238,17 +240,27 @@
                     highlightCode();
                 });
             });
+
+            watch(activeTab, (newVal, oldVal) => {
+                if (newVal === 'json') {
+                    showCopyButton.value = true; // show the button when JSON tab is active
+                } else {
+                    showCopyButton.value = false; // hide the button for other tabs
+                }
+            });
     
             const highlightCode = () => {
                document.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
                });
             };
-    
-            const clearResponse = () => { 
+
+            const clearResponse = () => {
                 serverResponse.value = '';
                 htmlServerResponse.value = '';
                 highlightedServerResponse.value = '';
+                copied.value = false;
+                showCopyButton.value = false;
             };
     
             const submitForm = () => {
@@ -312,6 +324,12 @@
                         console.error('Could not copy text: ', err);
                     });
             };
+
+            const copyAndSetCopied = () => {
+                copyToClipboard();
+                copied.value = true;
+            };
+
     
             return {
                 url,
@@ -327,7 +345,10 @@
                 thin,
                 htmlServerResponse,
                 activeTab,
-                copyToClipboard
+                copyToClipboard,
+                copied,
+                copyAndSetCopied,
+                showCopyButton
             };
         }
     });
