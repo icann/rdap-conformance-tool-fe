@@ -265,8 +265,20 @@
 
             const highlightedServerResponse = computed(() => {
                 if (formattedServerResponse.value) {
-                    const escapedCode = escapeHtml(formattedServerResponse.value);
-                    return hljs.highlight(escapedCode, {language: 'json'}).value;
+                    try {
+                        // Parse the JSON string to an object
+                        const jsonObject = JSON.parse(formattedServerResponse.value);
+
+                        // Stringify the object to a pretty-printed JSON string
+                        const prettyJson = JSON.stringify(jsonObject, null, 2);
+
+                        // Escape HTML and highlight the JSON
+                        const escapedCode = escapeHtml(prettyJson);
+                        return hljs.highlight(escapedCode, {language: 'json'}).value;
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
+                        return '';
+                    }
                 } else {
                     return '';
                 }
