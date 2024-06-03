@@ -152,13 +152,20 @@
         </div>
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
+
     <div class="tabs">
         <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
         <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
     </div>
 
     <div v-if="activeTab === 'html'" class="tab-content bg-white border border-gray-300 p-4">
-        <div v-html="htmlServerResponse"></div>
+        <div>{{ state.testedDate }}</div>
+        <div>{{ state.groupOK }}</div>
+        <div>{{ state.definitionIdentifier }}</div>
+        <div>{{ state.groupErrorWarning }}</div>
+        <div>{{ state.results }}</div>
+        <div>{{ state.testedURI }}</div>
+        <div>{{ state.receivedHttpStatusCode }}</div>
     </div>
     
     <div v-if="activeTab === 'json'" class="tab-content bg-white border border-gray-300 p-4">
@@ -170,10 +177,19 @@
 </body>
 
   <script>
-     const { ref, computed, watch, onMounted } = Vue;
+     const { ref, computed, watch, onMounted, reactive } = Vue;
     
     const app = Vue.createApp({
         setup() {
+            const state = reactive({
+                testedDate: '',
+                groupOK: [],
+                definitionIdentifier: '',
+                groupErrorWarning: [],
+                results: {},
+                testedURI: '',
+                receivedHttpStatusCode: 0,
+             });
             const url = ref('');
             const serverResponse = ref('');
             const isLoading = ref(false);
@@ -342,6 +358,7 @@
                     if (typeof parsedResponse.data === 'string') {
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
+                            // console.log('parsedResponse.data:', parsedResponse.data);
                         } catch (e) {
                             console.error('Error parsing data property:', e);
                         }
@@ -349,6 +366,29 @@
                     let html = jsonToHtml(parsedResponse.data);
                     console.log('html:', html);
                     htmlServerResponse.value = html;
+                    // Break the top-level keys into different variables
+                    let testedDate = parsedResponse.data.testedDate;
+                    let groupOK = parsedResponse.data.groupOK;
+                    let definitionIdentifier = parsedResponse.data.definitionIdentifier;
+                    let groupErrorWarning = parsedResponse.data.groupErrorWarning;
+                    let results = parsedResponse.data.results;
+                    let testedURI = parsedResponse.data.testedURI;
+                    let receivedHttpStatusCode = parsedResponse.data.receivedHttpStatusCode;
+                    console.log("testedDate:");
+                    console.log(testedDate);
+                    console.log("groupOK:");
+                    console.log(groupOK);
+                    console.log("definitionIdentifier:");
+                    console.log(definitionIdentifier);
+                    console.log("groupErrorWarning:");
+                    console.log(groupErrorWarning);
+                    console.log("results:");
+                    console.log(results);
+                    console.log("testedURI:");
+                    console.log(testedURI);
+                    console.log("receivedHttpStatusCode:");
+                    console.log(receivedHttpStatusCode);
+                    
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -391,7 +431,8 @@
                 copyToClipboard,
                 copied,
                 copyAndSetCopied,
-                showCopyButton
+                showCopyButton,
+                state
             };
         }
     });
