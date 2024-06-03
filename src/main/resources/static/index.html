@@ -62,6 +62,7 @@
         }
 
         .group-warning-class {
+            padding: 10px;
             color: orange;
         }
 
@@ -70,6 +71,7 @@
         }
 
         .good-class {
+            padding: 10px;
             color: rgb(29, 132, 29);
         }
 
@@ -109,16 +111,36 @@
             padding-bottom: 10px;
         }
 
-        .block-container:nth-of-type(odd) {
-             background-color: #ffffff; /* white */
+        .block-container {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+
+        .odd-class .block-container {
+            background-color: #ffffff; /* white */
         }
 
-        .block-container:nth-of-type(even) {
+        .even-class .block-container {
             background-color: #efecec; /* grey */
         }
 
+
         .key-large-font {
             font-size: 18px;
+        }
+
+        .result-toplevel {
+            margin: 5px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .result-secondlevel {
+            margin: 5px;
+            margin-left: 10px;
+            font-size: 15px;
+            font-weight: bold;
         }
 
     </style>
@@ -159,13 +181,53 @@
     </div>
 
     <div v-if="activeTab === 'html'" class="tab-content bg-white border border-gray-300 p-4">
-        <div>{{ state.testedDate }}</div>
-        <div>{{ state.groupOK }}</div>
-        <div>{{ state.definitionIdentifier }}</div>
-        <div>{{ state.groupErrorWarning }}</div>
-        <div>{{ state.results }}</div>
-        <div>{{ state.testedURI }}</div>
-        <div>{{ state.receivedHttpStatusCode }}</div>
+       <div v-if="hasData">
+            <div><span class="result-toplevel">TestedDate:</span>: {{ state.testedDate }}</div>
+            <div><span class="result-toplevel">URI:</span>:{{ state.testedURI }}</div>
+            <div><span class="result-toplevel">StatusCode:</span>: {{ state.receivedHttpStatusCode }}</div>
+            <div><span class="result-toplevel">Identified:</span>: {{ state.definitionIdentifier }}</div>
+
+            <div>
+                <span class="result-toplevel">GroupOK:</span>
+                <div v-for="(item, index) in state.groupOK" :key="index" v-if="state.groupOK.length">
+                    <p class="good-class"> {{ index + 1 }}: {{ item }} </p>
+                </div>
+            </div>
+            <div>
+                <span class="result-toplevel">GroupErrorWarning:</span>
+                <div v-for="(item, index) in state.groupErrorWarning" :key="index" v-if="state.groupErrorWarning.length">
+                    <p class="group-warning-class"> {{ index + 1 }}: {{ item }} </p>
+                </div>
+            </div>
+            <!--  Warnings -->
+            <div class="">
+                <div class="results-toplevel">Results
+                    <div class="result-secondlevel">Warnings:</div>
+                    <!--  Warnings -->
+                    <div v-for="(item, index) in state.results.warning" :key="index" v-if="state.results.warning.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
+                        <div class="warning-class">
+                            <!-- each item is an object -->
+                            <div class="block-container">
+                                <div v-for="(value, key) in item" :key="key">
+                                    <span><strong>{{ key }}:</strong>{{ value }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Errors -->
+                    <div class="result-secondlevel">Errors:</div>
+                    <div v-for="(item, index) in state.results.error" :key="index" v-if="state.results.error.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
+                        <div class="error-class">
+                            <div class="block-container">
+                                <div v-for="(value, key) in item" :key="key">
+                                    <span><strong>{{ key }}:</strong>{{ value }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div> 
     </div>
     
     <div v-if="activeTab === 'json'" class="tab-content bg-white border border-gray-300 p-4">
@@ -188,11 +250,11 @@
                 groupErrorWarning: [],
                 results: {},
                 testedURI: '',
-                receivedHttpStatusCode: 0,
-             });
+            });
             const url = ref('');
             const serverResponse = ref('');
             const isLoading = ref(false);
+            const hasData = ref(false);
             const gltdRegistrar = ref(false);
             const gltdRegistry = ref(false);
             const thin = ref(false);
@@ -332,6 +394,16 @@
                 highlightedServerResponse.value = '';
                 copied.value = false;
                 showCopyButton.value = false;
+                hasData.value = false;
+
+                // Reset the state object
+                state.testedDate = '';
+                state.groupOK = [];
+                state.definitionIdentifier = '';
+                state.groupErrorWarning = [];
+                state.results = {};
+                state.testedURI = '';
+                
             };
     
             const submitForm = () => {
@@ -366,41 +438,30 @@
                 .then(data => {
                     serverResponse.value = JSON.stringify(data);
                     isLoading.value = false;
+
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (typeof parsedResponse.data === 'string') {
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
+                            hasData.value = true;
                             // console.log('parsedResponse.data:', parsedResponse.data);
+                            let html = jsonToHtml(parsedResponse.data);
+                            // console.log('html:', html);
+                            htmlServerResponse.value = html;
+                            // Break the top-level keys into different variables
+                            state.testedDate = parsedResponse.data.testedDate;
+                            state.groupOK = parsedResponse.data.groupOK;
+                            state.definitionIdentifier = parsedResponse.data.definitionIdentifier;
+                            state.groupErrorWarning = parsedResponse.data.groupErrorWarning;
+                            state.results = parsedResponse.data.results;
+                            console.log('state.results:', state.results);
+                            state.testedURI = parsedResponse.data.testedURI;
+                            state.receivedHttpStatusCode = parsedResponse.data.receivedHttpStatusCode;
                         } catch (e) {
                             console.error('Error parsing data property:', e);
                         }
                     }
-                    let html = jsonToHtml(parsedResponse.data);
-                    console.log('html:', html);
-                    htmlServerResponse.value = html;
-                    // Break the top-level keys into different variables
-                    let testedDate = parsedResponse.data.testedDate;
-                    let groupOK = parsedResponse.data.groupOK;
-                    let definitionIdentifier = parsedResponse.data.definitionIdentifier;
-                    let groupErrorWarning = parsedResponse.data.groupErrorWarning;
-                    let results = parsedResponse.data.results;
-                    let testedURI = parsedResponse.data.testedURI;
-                    let receivedHttpStatusCode = parsedResponse.data.receivedHttpStatusCode;
-                    console.log("testedDate:");
-                    console.log(testedDate);
-                    console.log("groupOK:");
-                    console.log(groupOK);
-                    console.log("definitionIdentifier:");
-                    console.log(definitionIdentifier);
-                    console.log("groupErrorWarning:");
-                    console.log(groupErrorWarning);
-                    console.log("results:");
-                    console.log(results);
-                    console.log("testedURI:");
-                    console.log(testedURI);
-                    console.log("receivedHttpStatusCode:");
-                    console.log(receivedHttpStatusCode);
-                    
+
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -412,12 +473,30 @@
             });
 
             const copyToClipboard = () => {
-                navigator.clipboard.writeText(serverResponse.value)
-                    .then(() => {
-                        console.log('Copying to clipboard was successful!');
-                    }, err => {
-                        console.error('Could not copy text: ', err);
-                    });
+                try {
+                    // This is NUTS but we ALREADY stringified the serverResponse
+                    // but we are doing this again so we can be sure we get the
+                    // pretty-printed JSON
+
+                    // Parse the JSON string to an object
+                    const jsonObject = JSON.parse(serverResponse.value);
+
+                    // Parse the data property back to an object
+                    jsonObject.data = JSON.parse(jsonObject.data);
+
+                    // Stringify the object to a pretty-printed JSON string
+                    const prettyJson = JSON.stringify(jsonObject, null, 2);
+
+                    // Copy the pretty-printed JSON to the clipboard
+                    navigator.clipboard.writeText(prettyJson)
+                        .then(() => {
+                            console.log('Copying PPJson to clipboard was successful!');
+                        }, err => {
+                            console.error('Could not copy PPJson text: ', err);
+                        });
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                }
             };
 
             const copyAndSetCopied = () => {
@@ -430,6 +509,7 @@
                 url,
                 serverResponse,
                 isLoading,
+                hasData,
                 formattedServerResponse,
                 highlightedServerResponse,
                 highlightCode,
