@@ -130,9 +130,14 @@
             font-size: 18px;
         }
 
+        .topheader-label {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
         .result-toplevel {
             margin: 5px;
-            font-size: 20px;
+            font-size: 17px;
             font-weight: bold;
         }
 
@@ -142,6 +147,7 @@
             font-size: 15px;
             font-weight: bold;
         }
+
 
     </style>
 </head>
@@ -182,10 +188,12 @@
 
     <div v-if="activeTab === 'html'" class="tab-content bg-white border border-gray-300 p-4">
        <div v-if="hasData">
-            <div><span class="result-toplevel">TestedDate:</span>: {{ state.testedDate }}</div>
-            <div><span class="result-toplevel">URI:</span>:{{ state.testedURI }}</div>
-            <div><span class="result-toplevel">StatusCode:</span>: {{ state.receivedHttpStatusCode }}</div>
-            <div><span class="result-toplevel">Identified:</span>: {{ state.definitionIdentifier }}</div>
+            <div class="topheader-info grid grid-cols-6 gap-y-2">
+                <div class="topheader-label">TestedDate:</div> <div>{{ state.testedDate }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
+                <div class="topheader-label">URI:</div> <div>{{ state.testedURI }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
+                <div class="topheader-label">StatusCode:</div> <div>{{ state.receivedHttpStatusCode }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
+                <div class="topheader-label">StatusCode:</div> <div>{{ state.definitionIdentifier }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
+            </div>
 
             <div>
                 <span class="result-toplevel">GroupOK:</span>
