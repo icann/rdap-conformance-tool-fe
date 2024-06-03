@@ -1,11 +1,14 @@
 package org.icann.rdapconformancefe.tool;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -107,9 +110,31 @@ public class Main {
       if (resultsFile != null) {
         try {
           String fileContent = new String(Files.readAllBytes(Paths.get(resultsFile)));
-          resultMap.put("data", fileContent);
+          ObjectMapper mapper = new ObjectMapper();
+          ObjectNode jsonObject = (ObjectNode) mapper.readTree(fileContent);
+
+          // Get the values of the keys to be moved
+          Object testedURI = jsonObject.get("testedURI");
+          Object receivedHttpStatusCode = jsonObject.get("receivedHttpStatusCode");
+          Object definitionIdentifier = jsonObject.get("definitionIdentifier");
+
+          // Remove the keys from the original object
+          jsonObject.remove("testedURI");
+          jsonObject.remove("receivedHttpStatusCode");
+          jsonObject.remove("definitionIdentifier");
+
+          // Create a new LinkedHashMap and put the keys back in at the top
+          LinkedHashMap<String, Object> newJsonObject = new LinkedHashMap<>();
+          newJsonObject.put("testedURI", testedURI);
+          newJsonObject.put("receivedHttpStatusCode", receivedHttpStatusCode);
+          newJsonObject.put("definitionIdentifier", definitionIdentifier);
+
+          jsonObject
+              .fields()
+              .forEachRemaining(entry -> newJsonObject.put(entry.getKey(), entry.getValue()));
+
+          resultMap.put("data", mapper.writeValueAsString(newJsonObject));
           System.out.println("Got the file contents.");
-          // System.out.println("Results file content: " + fileContent);
         } catch (IOException e) {
           System.out.println("Results file error: " + e.getMessage());
           resultMap.put("data", "error");
@@ -118,7 +143,6 @@ public class Main {
         System.out.println("No results file.");
         resultMap.put("data", "ok");
       }
-
       System.out.println("Processed is finished, all set to return..");
       return resultMap;
     } // end of post

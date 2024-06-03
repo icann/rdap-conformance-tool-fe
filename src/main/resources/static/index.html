@@ -61,8 +61,16 @@
             color: orange;
         }
 
+        .group-warning-class {
+            color: orange;
+        }
+
         .error-class {
             color: red;
+        }
+
+        .good-class {
+            color: rgb(29, 132, 29);
         }
 
         /* strong {
@@ -79,12 +87,38 @@
             padding: 5px;
         }
 
+        .group-warning-class > p {
+            /* border: 1px solid #1a1919; */
+            padding: 5px;
+            padding-left: 10px;
+        }
+
+        .good-class > p {
+            /* border-bottom: 1px solid #1a1919; */
+            padding: 5px;
+            padding-left: 10px;
+        }
+
+        li.good-class {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        li.group-warning-class {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
         .block-container:nth-of-type(odd) {
              background-color: #ffffff; /* white */
         }
 
         .block-container:nth-of-type(even) {
             background-color: #efecec; /* grey */
+        }
+
+        .key-large-font {
+            font-size: 18px;
         }
 
     </style>
@@ -170,24 +204,33 @@
                 if (depth > 5) {
                     return '<li>Recursion limit reached</li>';
                 }
-                let className = '';
                 let html = '<ul class="alternating-colors block-container">';
                 for (let key in json) {
+                    let className = '';  // Reset className at the start of each iteration
                     if (key === 'warning') {
                         className = 'warning-class';
                     } else if (key === 'error') {
                         className = 'error-class';
+                    } else if (key === 'groupErrorWarning') {
+                        className = 'group-warning-class';
+                    } else if (key === 'groupOK') {
+                        className = 'good-class';
                     }
                     html += `<li class="${className}">`;
-                    html += `<strong>${escapeHtml(key)}: </strong>`;
+
+                    // Check if the key is 'testedURI' or 'receivedHttpStatusCode'
+                    if (key === 'testedURI' || key === 'receivedHttpStatusCode' || key === "definitionIdentifier") {
+                        html += `<strong class="key-large-font">${escapeHtml(key)}: </strong>`;
+                    } else {
+                        html += `<strong>${escapeHtml(key)}: </strong>`;
+                    }
                     if (Array.isArray(json[key])) {
                         for (let value of json[key]) {
                             if (typeof value === 'object' && value !== null) {
                                 html += jsonToHtml(value, depth + 1);
                             } else {
-                                html += escapeHtml(String(value));
+                                html += '<p>' + escapeHtml(String(value)) + '</p>';  // Wrap the value with a paragraph
                             }
-                            html += '<p>&nbsp;</p>';  // Add a paragraph after each list
                         }
                     } else if (typeof json[key] === 'object' && json[key] !== null && !(json[key] instanceof String)) {
                         html += jsonToHtml(json[key], depth + 1);
