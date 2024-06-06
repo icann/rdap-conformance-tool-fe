@@ -209,7 +209,7 @@
             </div>
             <!--  Warnings -->
             <div class="">
-                <span class="result-toplevel">Results:</span>
+                <div class="result-toplevel">Results:
                     <div class="result-secondlevel">Warnings: {{ state.warningCount }}</div>
                     <!--  Warnings -->
                     <div v-for="(item, index) in state.results.warning" :key="index" v-if="state.results.warning.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
@@ -238,12 +238,10 @@
         </div> 
     </div>
     
-    <div v-if="activeTab === 'json'" class="tab-content bg-white border border-gray-300 p-4">
+    <div v-if="activeTab === 'json' && hasData" class="tab-content bg-white border border-gray-300 p-4">
         <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
     </div>
-    
-
-    </div>
+</div>
 </body>
 
   <script>
@@ -263,6 +261,7 @@
                 testedURI: '',
                 warningCount: 0,
                 errorCount: 0,
+                someData: 'Hello World',
             });
             const url = ref('');
             const serverResponse = ref('');
@@ -338,7 +337,29 @@
                 return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
 
+            // const highlightedServerResponse = computed(() => {
+            //     if (formattedServerResponse.value) {
+            //         try {
+            //             // Parse the JSON string to an object
+            //             const jsonObject = JSON.parse(formattedServerResponse.value);
+
+            //             // Stringify the object to a pretty-printed JSON string
+            //             const prettyJson = JSON.stringify(jsonObject, null, 2);
+
+            //             // Escape HTML and highlight the JSON
+            //             const escapedCode = escapeHtml(prettyJson);
+            //             return hljs.highlight(escapedCode, {language: 'json'}).value;
+            //         } catch (e) {
+            //             console.error('Error parsing JSON:', e);
+            //             return '';
+            //         }
+            //     } else {
+            //         return '';
+            //     }
+            // });
+
             const highlightedServerResponse = computed(() => {
+                console.log('[highlightedServerResponse]formattedServerResponse:', formattedServerResponse.value);
                 if (formattedServerResponse.value) {
                     try {
                         // Parse the JSON string to an object
@@ -349,7 +370,7 @@
 
                         // Escape HTML and highlight the JSON
                         const escapedCode = escapeHtml(prettyJson);
-                        return hljs.highlight(escapedCode, {language: 'json'}).value;
+                        return hljs.highlight('json', escapedCode).value;
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
                         return '';
@@ -389,8 +410,10 @@
 
             watch(activeTab, (newVal, oldVal) => {
                 if (newVal === 'json') {
+                    console.log('JSON tab is active');
                     showCopyButton.value = true; // show the button when JSON tab is active
                 } else {
+                    console.log('HTML tab is active');
                     showCopyButton.value = false; // hide the button for other tabs
                 }
             });
@@ -451,14 +474,18 @@
                 .then(data => {
                     serverResponse.value = JSON.stringify(data);
                     isLoading.value = false;
+                    formattedServerResponse.value = serverResponse.value;
+                    console.log("GAH:", formattedServerResponse.value);
 
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (typeof parsedResponse.data === 'string') {
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
                             hasData.value = true;
+                            
                             let html = jsonToHtml(parsedResponse.data);
                             htmlServerResponse.value = html;
+
                             // Break the top-level keys into different variables
                             state.testedDate = parsedResponse.data.testedDate;
                             state.groupOK = parsedResponse.data.groupOK;
