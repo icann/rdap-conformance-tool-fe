@@ -26,16 +26,21 @@
 
         button.active {
             background-color: #ddd;
+            /* background-color: #f2ebeb; */
         }
 
         .tab-content {
-            margin-top: 20px;
+            /* margin-top: 20px; */
         }
 
         .tabs {
             overflow: hidden;
-            border: 1px solid #ccc;
+            /* border: 1px solid #ccc; */
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
             background-color: #f1f1f1;
+            border-radius: 5px;
         }
 
         .tabs button {
@@ -54,7 +59,8 @@
         }
 
         .tabs button.active {
-            background-color: #ccc;
+            /* background-color: #ccc; */
+            background-color: #f2ebeb;
         }
 
         .warning-class {
@@ -130,6 +136,24 @@
             font-size: 18px;
         }
 
+        .topheader-info {
+            /* border: 1px solid #908c8c; */
+            background-color: #f2ebeb;
+            /* background-color: #f9f5f5; */
+            padding: 10px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+        }
+
+        .result-container {
+            /* border-radius: 10px; */
+            /* border-top-left-radius: 10px; */
+            /* border-top-right-radius: 10px; */
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        
+        }
+
         .topheader-label {
             font-weight: bold;
             font-size: 18px;
@@ -148,6 +172,34 @@
             font-weight: bold;
         }
 
+        .error-warning-count {
+            padding: 2px;
+            color: orange;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .group-ok-count {
+            padding: 2px;
+            color: green;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .warnings-count {
+            padding: 2px;
+            color: orange;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .errors-count {
+            padding: 2px;
+            color: red;
+            font-weight: bold;
+            font-style: italic;
+        }
+
 
     </style>
 </head>
@@ -156,20 +208,20 @@
     <h1 class="text-4xl mb-4 text-blue-500">RDAP Conformance Tool</h1>
     <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
     <form @submit.prevent="submitForm" class="mb-8">
-        <label for="url" class="block mb-2">URL:</label>
+        <label for="url" class="block mb-2">URL</label>
         <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
         <br>
         <div class="flex space-x-4 mt-4">
             <div>
-                <label for="gltdRegistrar" class="block mb-2">GltdRegistrar:</label>
+                <label for="gltdRegistrar" class="block mb-2">GltdRegistrar</label>
                 <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
             </div>
             <div>
-                <label for="gltdRegistry" class="block mb-2">GltdRegistry:</label>
+                <label for="gltdRegistry" class="block mb-2">GltdRegistry</label>
                 <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
             </div>
             <div>
-                <label for="thin" class="block mb-2">Thin:</label>
+                <label for="thin" class="block mb-2">Thin</label>
                 <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
             </div>
         </div>
@@ -181,12 +233,12 @@
         <span v-if="isLoading" class="block mt-4">Loading...</span>
     </form>
 
-    <div class="tabs">
+    <div class="tabs bg-white">
         <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
         <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
     </div>
 
-    <div v-if="activeTab === 'html'" class="tab-content bg-white border border-gray-300 p-4">
+    <div v-if="activeTab === 'html' && hasData" class="result-container tab-content bg-white border border-gray-300 p-4">
        <div v-if="hasData">
             <div class="topheader-info grid grid-cols-6 gap-y-2">
                 <div class="topheader-label">TestedDate:</div> <div>{{ state.testedDate }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
@@ -196,21 +248,21 @@
             </div>
 
             <div>
-                <span class="result-toplevel">GroupOK: {{ state.groupOKCount }}</span>
+                <span class="result-toplevel">GroupOK: <span class="group-ok-count">{{ state.groupOKCount }}</span></span>
                 <div v-for="(item, index) in state.groupOK" :key="index" v-if="state.groupOK.length">
-                    <p class="good-class"> {{ index + 1 }}: {{ item }} </p>
+                    <p class="good-class"> {{ item }} </p>
                 </div>
             </div>
-            <div>
-                <span class="result-toplevel">GroupErrorWarning: {{ state.groupErrorWarningCount }}</span>
+            <div class="mt-4">
+                <span class="result-toplevel">GroupErrorWarning: <span class="error-warning-count">{{ state.groupErrorWarningCount }}</span></span>
                 <div v-for="(item, index) in state.groupErrorWarning" :key="index" v-if="state.groupErrorWarning.length">
-                    <p class="group-warning-class"> {{ index + 1 }}: {{ item }} </p>
+                    <p class="group-warning-class"> {{ item }} </p>
                 </div>
             </div>
             <!--  Warnings -->
             <div class="">
-                <div class="result-toplevel">Results:
-                    <div class="result-secondlevel">Warnings: {{ state.warningCount }}</div>
+                <!-- <div class="result-toplevel">Results: -->
+                    <div class="result-toplevel mt-4">Warnings: <span class="warnings-count">{{ state.warningCount }}</span></div>
                     <!--  Warnings -->
                     <div v-for="(item, index) in state.results.warning" :key="index" v-if="state.results.warning.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
                         <div class="warning-class">
@@ -223,7 +275,7 @@
                         </div>
                     </div>
                     <!-- Errors -->
-                    <div class="result-secondlevel">Errors: {{ state.errorCount }}</div>
+                    <div class="result-toplevel mt-4">Errors: <span class="errors-count">{{ state.errorCount }}</span></div>
                     <div v-for="(item, index) in state.results.error" :key="index" v-if="state.results.error.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
                         <div class="error-class">
                             <div class="block-container">
@@ -233,12 +285,12 @@
                             </div>
                         </div>
                     </div>
-                </div> 
+                <!-- </div>  -->
             </div>
         </div> 
     </div>
     
-    <div v-if="activeTab === 'json' && hasData" class="tab-content bg-white border border-gray-300 p-4">
+    <div v-if="activeTab === 'json' && hasData" class="result-container tab-content bg-white border border-gray-300 p-4">
         <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
     </div>
 </div>
@@ -359,7 +411,7 @@
             // });
 
             const highlightedServerResponse = computed(() => {
-                console.log('[highlightedServerResponse]formattedServerResponse:', formattedServerResponse.value);
+                // console.log('[highlightedServerResponse]formattedServerResponse:', formattedServerResponse.value);
                 if (formattedServerResponse.value) {
                     try {
                         // Parse the JSON string to an object
