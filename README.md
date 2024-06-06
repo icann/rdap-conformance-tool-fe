@@ -14,6 +14,11 @@ Then run it:
   `docker run -p 8080:8080 rdapctfe`
 
 
+## Testing
+For testing we frequently used:
+https://rdap.verisign.com/com/v1/domain/verisign.com
+https://rdap.arin.net/registry/domain/152.112.149.in-addr.arpa.
+
 # License
 
  Copyright 2024 Internet Corporation for Assigned Names and Numbers ("ICANN")

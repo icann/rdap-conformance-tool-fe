@@ -196,21 +196,21 @@
             </div>
 
             <div>
-                <span class="result-toplevel">GroupOK:</span>
+                <span class="result-toplevel">GroupOK: {{ state.groupOKCount }}</span>
                 <div v-for="(item, index) in state.groupOK" :key="index" v-if="state.groupOK.length">
                     <p class="good-class"> {{ index + 1 }}: {{ item }} </p>
                 </div>
             </div>
             <div>
-                <span class="result-toplevel">GroupErrorWarning:</span>
+                <span class="result-toplevel">GroupErrorWarning: {{ state.groupErrorWarningCount }}</span>
                 <div v-for="(item, index) in state.groupErrorWarning" :key="index" v-if="state.groupErrorWarning.length">
                     <p class="group-warning-class"> {{ index + 1 }}: {{ item }} </p>
                 </div>
             </div>
             <!--  Warnings -->
             <div class="">
-                <div class="results-toplevel">Results
-                    <div class="result-secondlevel">Warnings:</div>
+                <span class="result-toplevel">Results:</span>
+                    <div class="result-secondlevel">Warnings: {{ state.warningCount }}</div>
                     <!--  Warnings -->
                     <div v-for="(item, index) in state.results.warning" :key="index" v-if="state.results.warning.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
                         <div class="warning-class">
@@ -223,7 +223,7 @@
                         </div>
                     </div>
                     <!-- Errors -->
-                    <div class="result-secondlevel">Errors:</div>
+                    <div class="result-secondlevel">Errors: {{ state.errorCount }}</div>
                     <div v-for="(item, index) in state.results.error" :key="index" v-if="state.results.error.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
                         <div class="error-class">
                             <div class="block-container">
@@ -239,7 +239,7 @@
     </div>
     
     <div v-if="activeTab === 'json'" class="tab-content bg-white border border-gray-300 p-4">
-        <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+        <pre><code class="json" v-highlightedServerResponse"></code></pre>
     </div>
     
 
@@ -254,10 +254,15 @@
             const state = reactive({
                 testedDate: '',
                 groupOK: [],
+                groupOKCount: 0, 
                 definitionIdentifier: '',
                 groupErrorWarning: [],
+                groupErrorWarningCount: 0, 
                 results: {},
+                resultsCount: 0,
                 testedURI: '',
+                warningCount: 0,
+                errorCount: 0,
             });
             const url = ref('');
             const serverResponse = ref('');
@@ -452,9 +457,7 @@
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
                             hasData.value = true;
-                            // console.log('parsedResponse.data:', parsedResponse.data);
                             let html = jsonToHtml(parsedResponse.data);
-                            // console.log('html:', html);
                             htmlServerResponse.value = html;
                             // Break the top-level keys into different variables
                             state.testedDate = parsedResponse.data.testedDate;
@@ -465,11 +468,16 @@
                             console.log('state.results:', state.results);
                             state.testedURI = parsedResponse.data.testedURI;
                             state.receivedHttpStatusCode = parsedResponse.data.receivedHttpStatusCode;
+                            // all the counts
+                            state.groupOKCount = state.groupOK.length; // Add this line
+                            state.groupErrorWarningCount = state.groupErrorWarning.length; // Add this line
+                            state.resultsCount = Object.keys(state.results).length; // Add this line
+                            state.warningCount = parsedResponse.data.results.warning.length;
+                            state.errorCount = parsedResponse.data.results.error.length;
                         } catch (e) {
                             console.error('Error parsing data property:', e);
                         }
                     }
-
                 })
                 .catch(error => {
                     console.error('Error:', error);
