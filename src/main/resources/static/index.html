@@ -205,7 +205,7 @@
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
   <div id="app" class="container mx-auto px-4 pt-10 mb-8">
-    <h1 class="text-4xl mb-4 text-blue-500">RDAP Conformance Tool</h1>
+    <h1 class="text-4xl mb-4 text-blue-500">ICANN RDAP Conformance Tool</h1>
     <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
     <form @submit.prevent="submitForm" class="mb-8">
         <label for="url" class="block mb-2">URL</label>
@@ -227,7 +227,7 @@
         </div>
         <div class="flex justify-start" v-if="!isLoading">
             <input type="reset" value="Clear" @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 mr-4">
-            <input type="submit" value="Submit" :disabled="isLoading" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6">
+            <input type="submit" value="Submit" :disabled="isLoading" class="transition ease-in-out delay-150 bg-blue-600 hover:-translate-x-1 hover:scale-110 hover:bg-blue-800 duration-300 text-white font-bold py-2 px-4 rounded mt-6 ring-2 ring-blue-500/50">
             <button v-if="activeTab === 'json' && showCopyButton" @click.prevent="copyAndSetCopied" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 ml-4" :class="{ 'bg-gray-500': copied }">{{ copied ? 'Copied' : 'Copy' }}</button>
         </div>
         <span v-if="isLoading" class="block mt-4">Loading...</span>
@@ -240,11 +240,19 @@
 
     <div v-if="activeTab === 'html'" class="result-container tab-content bg-white border border-gray-300 p-4">
        <div v-if="hasData">
-            <div class="topheader-info grid grid-cols-6 gap-y-2">
-                <div class="topheader-label">TestedDate:</div> <div>{{ state.testedDate }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
-                <div class="topheader-label">URI:</div> <div>{{ state.testedURI }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
-                <div class="topheader-label">StatusCode:</div> <div>{{ state.receivedHttpStatusCode }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
-                <div class="topheader-label">StatusCode:</div> <div>{{ state.definitionIdentifier }}</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div> <div>&nbsp;</div>
+            <div class="topheader-info">
+                <div class="flex flex-row">
+                    <div class="topheader-label basis-1/5">TestedDate:</div> <div class="basis-3/5">{{ state.testedDate }}</div> <div class="basis-1/5">&nbsp;</div>  
+                </div>
+                <div class="flex flex-row">
+                    <div class="topheader-label basis-1/5">URI:</div> <div class="basis-3/5">{{  state.testedURI }}</div> <div class="basis-1/5">&nbsp;</div>  
+                </div>
+                <div class="flex flex-row">
+                    <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.receivedHttpStatusCode }}</div> <div class="basis-1/5">&nbsp;</div>  
+                </div>
+                <div class="flex flex-row">
+                    <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
+                </div>
             </div>
 
             <div>
@@ -261,6 +269,8 @@
             </div>
             <!--  Warnings -->
             <div class="">
+                <!-- <div class="result-toplevel mt-4">Ignore: </div>
+                <div class="result-toplevel mt-4">Notes: </div> -->
                 <!-- <div class="result-toplevel">Results: -->
                     <div class="result-toplevel mt-4">Warnings: <span class="warnings-count">{{ state.warningCount }}</span></div>
                     <!--  Warnings -->
@@ -269,7 +279,7 @@
                             <!-- each item is an object -->
                             <div class="block-container">
                                 <div v-for="(value, key) in item" :key="key">
-                                    <span><strong>{{ key }}:</strong>{{ value }}</span>
+                                    <span><strong>{{ key }}:</strong> {{ value }}</span>
                                 </div>
                             </div>
                         </div>
@@ -280,7 +290,7 @@
                         <div class="error-class">
                             <div class="block-container">
                                 <div v-for="(value, key) in item" :key="key">
-                                    <span><strong>{{ key }}:</strong>{{ value }}</span>
+                                    <span><strong>{{ key }}:</strong> {{ value }}</span>
                                 </div>
                             </div>
                         </div>
