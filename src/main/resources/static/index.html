@@ -216,7 +216,7 @@
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
     <div class="bg-blue-500 p-6 flex items-center justify-center">
-        <img src="https://itp.cdn.icann.org/assets/images/www-static/logo/icann-logo-tagline-en_680x152.webp" alt="icann_image" class="w-64 h-24 object-contain absolute left-6">
+        <img src="https://itp.cdn.icann.org/assets/images/www-static/logo/icann-logo-tagline-white-en_680x152.webp" alt="icann_image" class="w-64 h-24 object-contain absolute left-6">
         <h1 class="text-4xl text-white">ICANN RDAP Conformance Tool</h1>
     </div>
     <div id="app" class="container mx-auto px-4 pt-10 mb-8">
@@ -368,7 +368,7 @@
             const gltdRegistrar = ref(false);
             const gltdRegistry = ref(false);
             const thin = ref(false);
-            const htmlServerResponse = ref('');
+            // const htmlServerResponse = ref('');
             const activeTab = ref('html');
             const copied = ref(false);
             const showCopyButton = ref(false);
@@ -380,7 +380,7 @@
                         return parsedResponse.data;
                     }
                     console.log('nope, not got it: ', parsedResponse);
-                    return JSON.stringify(parsedResponse, null, 2); // stringify with indentation
+                    return JSON.stringify(parsedResponse, null, 2); 
                 } catch(e) {
                     return serverResponse.value;
                 }
@@ -503,7 +503,7 @@
 
             const clearResponse = () => {
                 serverResponse.value = '';
-                htmlServerResponse.value = '';
+                // htmlServerResponse.value = '';
                 highlightedServerResponse.value = '';
                 copied.value = false;
                 showCopyButton.value = false;
@@ -560,8 +560,8 @@
                             parsedResponse.data = JSON.parse(parsedResponse.data);
                             hasData.value = true;
                             
-                            let html = jsonToHtml(parsedResponse.data);
-                            htmlServerResponse.value = html;
+                            // let html = jsonToHtml(parsedResponse.data);
+                            // htmlServerResponse.value = html;
 
                             // Break the top-level keys into different variables
                             state.testedDate = parsedResponse.data.testedDate;
@@ -641,7 +641,7 @@
                 gltdRegistrar,
                 gltdRegistry,
                 thin,
-                htmlServerResponse,
+                // htmlServerResponse,
                 activeTab,
                 copyToClipboard,
                 copied,
