@@ -200,78 +200,90 @@
             font-style: italic;
         }
 
+        .loading {
+            font-style: italic;
+            color: #595656;
+            font-size: 24px;
+        }
+
+        .footer-image {
+            float: left;
+            margin-right: 10px; 
+        }
+
 
     </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
-  <div id="app" class="container mx-auto px-4 pt-10 mb-8">
-    <h1 class="text-4xl mb-4 text-blue-500">ICANN RDAP Conformance Tool</h1>
-    <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
-    <form @submit.prevent="submitForm" class="mb-8">
-        <label for="url" class="block mb-2">URL</label>
-        <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
-        <br>
-        <div class="flex space-x-4 mt-4">
-            <div>
-                <label for="gltdRegistrar" class="block mb-2">GltdRegistrar</label>
-                <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
-            </div>
-            <div>
-                <label for="gltdRegistry" class="block mb-2">GltdRegistry</label>
-                <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
-            </div>
-            <div>
-                <label for="thin" class="block mb-2">Thin</label>
-                <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
-            </div>
-        </div>
-        <div class="flex justify-start" v-if="!isLoading">
-            <input type="reset" value="Clear" @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 mr-4">
-            <input type="submit" value="Submit" :disabled="isLoading" class="transition ease-in-out delay-150 bg-blue-600 hover:-translate-x-1 hover:scale-110 hover:bg-blue-800 duration-300 text-white font-bold py-2 px-4 rounded mt-6 ring-2 ring-blue-500/50">
-            <button v-if="activeTab === 'json' && showCopyButton" @click.prevent="copyAndSetCopied" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 ml-4" :class="{ 'bg-gray-500': copied }">{{ copied ? 'Copied' : 'Copy' }}</button>
-        </div>
-        <span v-if="isLoading" class="block mt-4">Loading...</span>
-    </form>
-
-    <div class="tabs bg-white">
-        <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
-        <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
+    <div class="bg-blue-500 p-6 flex items-center justify-center">
+        <img src="https://itp.cdn.icann.org/assets/images/www-static/logo/icann-logo-tagline-en_680x152.webp" alt="icann_image" class="w-64 h-24 object-contain absolute left-6">
+        <h1 class="text-4xl text-white">ICANN RDAP Conformance Tool</h1>
     </div>
+    <div id="app" class="container mx-auto px-4 pt-10 mb-8">
+        <!-- <h1 class="text-4xl mb-4 text-blue-500">ICANN RDAP Conformance Tool</h1> -->
+        <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
+        <form @submit.prevent="submitForm" class="mb-8">
+            <label for="url" class="block mb-2">URL</label>
+            <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
+            <br>
+            <div class="flex space-x-4 mt-4">
+                <div>
+                    <label for="gltdRegistrar" class="block mb-2">GltdRegistrar</label>
+                    <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
+                </div>
+                <div>
+                    <label for="gltdRegistry" class="block mb-2">GltdRegistry</label>
+                    <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
+                </div>
+                <div>
+                    <label for="thin" class="block mb-2">Thin</label>
+                    <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
+                </div>
+            </div>
+            <div class="flex justify-start" v-if="!isLoading">
+                <input type="reset" value="Clear" @click="clearResponse" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 mr-4">
+                <input type="submit" value="Submit" :disabled="isLoading" class="transition ease-in-out delay-150 bg-blue-600 hover:-translate-x-1 hover:scale-110 hover:bg-blue-800 duration-300 text-white font-bold py-2 px-4 rounded mt-6 ring-2 ring-blue-500/50">
+                <button v-if="activeTab === 'json' && showCopyButton" @click.prevent="copyAndSetCopied" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 ml-4" :class="{ 'bg-gray-500': copied }">{{ copied ? 'Copied' : 'Copy' }}</button>
+            </div>
+            <span v-if="isLoading" class="block mt-4 font-semibold loading">Loading...</span>
+        </form>
 
-    <div v-if="activeTab === 'html'" class="result-container tab-content bg-white border border-gray-300 p-4">
-       <div v-if="hasData">
-            <div class="topheader-info">
-                <div class="flex flex-row">
-                    <div class="topheader-label basis-1/5">TestedDate:</div> <div class="basis-3/5">{{ state.testedDate }}</div> <div class="basis-1/5">&nbsp;</div>  
-                </div>
-                <div class="flex flex-row">
-                    <div class="topheader-label basis-1/5">URI:</div> <div class="basis-3/5">{{  state.testedURI }}</div> <div class="basis-1/5">&nbsp;</div>  
-                </div>
-                <div class="flex flex-row">
-                    <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.receivedHttpStatusCode }}</div> <div class="basis-1/5">&nbsp;</div>  
-                </div>
-                <div class="flex flex-row">
-                    <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
-                </div>
-            </div>
+        <div class="tabs bg-white">
+            <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
+            <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
+        </div>
 
-            <div>
-                <span class="result-toplevel">GroupOK: <span class="group-ok-count">{{ state.groupOKCount }}</span></span>
-                <div v-for="(item, index) in state.groupOK" :key="index" v-if="state.groupOK.length">
-                    <p class="good-class"> {{ item }} </p>
+        <div v-if="activeTab === 'html'" class="result-container tab-content bg-white border border-gray-300 p-4">
+        <div v-if="hasData">
+                <div class="topheader-info">
+                    <div class="flex flex-row">
+                        <div class="topheader-label basis-1/5">TestedDate:</div> <div class="basis-3/5">{{ state.testedDate }}</div> <div class="basis-1/5">&nbsp;</div>  
+                    </div>
+                    <div class="flex flex-row">
+                        <div class="topheader-label basis-1/5">URI:</div> <div class="basis-3/5">{{  state.testedURI }}</div> <div class="basis-1/5">&nbsp;</div>  
+                    </div>
+                    <div class="flex flex-row">
+                        <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.receivedHttpStatusCode }}</div> <div class="basis-1/5">&nbsp;</div>  
+                    </div>
+                    <div class="flex flex-row">
+                        <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
+                    </div>
                 </div>
-            </div>
-            <div class="mt-4">
-                <span class="result-toplevel">GroupErrorWarning: <span class="error-warning-count">{{ state.groupErrorWarningCount }}</span></span>
-                <div v-for="(item, index) in state.groupErrorWarning" :key="index" v-if="state.groupErrorWarning.length">
-                    <p class="group-warning-class"> {{ item }} </p>
+
+                <div>
+                    <span class="result-toplevel">GroupOK: <span class="group-ok-count">{{ state.groupOKCount }}</span></span>
+                    <div v-for="(item, index) in state.groupOK" :key="index" v-if="state.groupOK.length">
+                        <p class="good-class"> {{ item }} </p>
+                    </div>
                 </div>
-            </div>
-            <!--  Warnings -->
-            <div class="">
-                <!-- <div class="result-toplevel mt-4">Ignore: </div>
-                <div class="result-toplevel mt-4">Notes: </div> -->
-                <!-- <div class="result-toplevel">Results: -->
+                <div class="mt-4">
+                    <span class="result-toplevel">GroupErrorWarning: <span class="error-warning-count">{{ state.groupErrorWarningCount }}</span></span>
+                    <div v-for="(item, index) in state.groupErrorWarning" :key="index" v-if="state.groupErrorWarning.length">
+                        <p class="group-warning-class"> {{ item }} </p>
+                    </div>
+                </div>
+                <!--  Warnings -->
+                <div class="">    
                     <div class="result-toplevel mt-4">Warnings: <span class="warnings-count">{{ state.warningCount }}</span></div>
                     <!--  Warnings -->
                     <div v-for="(item, index) in state.results.warning" :key="index" v-if="state.results.warning.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
@@ -295,15 +307,36 @@
                             </div>
                         </div>
                     </div>
-                <!-- </div>  -->
-            </div>
-        </div> 
+                    <div class="result-toplevel mt-4">Ignore: <span class="errors-count">{{ state.ignoreCount }}</span></div>
+                    <div v-for="(item, index) in state.ignore" :key="index" v-if="state.ignore.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
+                        <div class="error-class">
+                            <div class="block-container">
+                                <div>{{ item }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-toplevel mt-4">Notes: <span class="errors-count">{{ state.notesCount }}</span></div>
+                    <div v-for="(item, index) in state.notes" :key="index" v-if="state.notes.length" :class="index % 2 === 0 ? 'even-class' : 'odd-class'">
+                        <div class="error-class">
+                            <div class="block-container">
+                                <div>{{ item }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+        
+        <div v-if="activeTab === 'json'" class="result-container tab-content bg-white border border-gray-300 p-4">
+            <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+        </div>
     </div>
-    
-    <div v-if="activeTab === 'json'" class="result-container tab-content bg-white border border-gray-300 p-4">
-        <pre><code class="json" v-html="highlightedServerResponse"></code></pre>
+    <div>
+        <footer class="text-center text-gray-500 text-xs">
+          
+            &copy;2024 ICANN RDAP Conformance Tool
+        </footer>
     </div>
-</div>
 </body>
 
   <script>
@@ -323,7 +356,10 @@
                 testedURI: '',
                 warningCount: 0,
                 errorCount: 0,
-                someData: 'Hello World',
+                ignore: [],
+                ignoreCount: 0,
+                notes: [],
+                notesCount: 0,
             });
             const url = ref('');
             const serverResponse = ref('');
@@ -398,27 +434,6 @@
             function escapeHtml(html) {
                 return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
-
-            // const highlightedServerResponse = computed(() => {
-            //     if (formattedServerResponse.value) {
-            //         try {
-            //             // Parse the JSON string to an object
-            //             const jsonObject = JSON.parse(formattedServerResponse.value);
-
-            //             // Stringify the object to a pretty-printed JSON string
-            //             const prettyJson = JSON.stringify(jsonObject, null, 2);
-
-            //             // Escape HTML and highlight the JSON
-            //             const escapedCode = escapeHtml(prettyJson);
-            //             return hljs.highlight(escapedCode, {language: 'json'}).value;
-            //         } catch (e) {
-            //             console.error('Error parsing JSON:', e);
-            //             return '';
-            //         }
-            //     } else {
-            //         return '';
-            //     }
-            // });
 
             const highlightedServerResponse = computed(() => {
                 // console.log('[highlightedServerResponse]formattedServerResponse:', formattedServerResponse.value);
@@ -554,15 +569,18 @@
                             state.definitionIdentifier = parsedResponse.data.definitionIdentifier;
                             state.groupErrorWarning = parsedResponse.data.groupErrorWarning;
                             state.results = parsedResponse.data.results;
-                            console.log('state.results:', state.results);
                             state.testedURI = parsedResponse.data.testedURI;
                             state.receivedHttpStatusCode = parsedResponse.data.receivedHttpStatusCode;
                             // all the counts
-                            state.groupOKCount = state.groupOK.length; // Add this line
-                            state.groupErrorWarningCount = state.groupErrorWarning.length; // Add this line
-                            state.resultsCount = Object.keys(state.results).length; // Add this line
+                            state.groupOKCount = state.groupOK.length; 
+                            state.groupErrorWarningCount = state.groupErrorWarning.length; 
+                            state.resultsCount = Object.keys(state.results).length; 
                             state.warningCount = parsedResponse.data.results.warning.length;
                             state.errorCount = parsedResponse.data.results.error.length;
+                            state.ignore = parsedResponse.data.results.ignore;
+                            state.ignoreCount = parsedResponse.data.results.ignore.length;
+                            state.notes = parsedResponse.data.results.notes;
+                            state.notesCount = parsedResponse.data.results.notes.length;
                         } catch (e) {
                             console.error('Error parsing data property:', e);
                         }

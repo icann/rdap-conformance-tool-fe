@@ -1,0 +1,131 @@
+{
+  "data": {
+    "testedURI": "https://rdap.verisign.com/com/v1/domain/verisign.com",
+    "receivedHttpStatusCode": 200,
+    "definitionIdentifier": "Sample rdap-conformance-tool configuration file",
+    "testedDate": "2024-06-07T14:07:01.762185Z",
+    "groupOK": [
+      "stdRdapPort43WhoisServerValidation",
+      "IPv6Validation",
+      "stdRdapRolesValidation",
+      "stdRdapPublicIdsValidation",
+      "stdRdapUnicodeNameValidation",
+      "stdRdapAsEventActorValidation",
+      "stdRdapLanguageIdentifierValidation",
+      "stdRdapConformanceValidation",
+      "stdRdapEventsValidation",
+      "domainCaseFoldingValidation",
+      "DomainNameValidation",
+      "stdRdapIpAddressesValidation",
+      "stdRdapLdhNameValidation",
+      "stdRdapStatusValidation",
+      "stdRdapSecureDnsValidation",
+      "stdRdapNameserverLookupValidation",
+      "stdRdapRemarksValidation",
+      "stdRdapEntitiesValidation",
+      "webUriValidation",
+      "stdRdapVariantsValidation",
+      "IPv4Validation"
+    ],
+    "groupErrorWarning": [
+      "stdRdapDomainLookupValidation",
+      "stdRdapNoticesRemarksValidation",
+      "stdRdapLinksValidation",
+      "stdRdapEntityLookupValidation"
+    ],
+    "results": {
+      "warning": [
+        {
+          "code": -12214,
+          "notes": "Domain includes invalid Links array: See specific errors for details.",
+          "message": "The value for the JSON name value does not pass #/links/0/type validation [stdRdapLinksValidation].",
+          "value": "#/links/0/type:application/rdap+json"
+        },
+        {
+          "code": -12214,
+          "notes": "Domain includes invalid Links array: See specific errors for details.",
+          "message": "The value for the JSON name value does not pass #/links/1/type validation [stdRdapLinksValidation].",
+          "value": "#/links/1/type:application/rdap+json"
+        }
+      ],
+      "ignore": [],
+      "notes": [
+        "This is a custom configuration definition to filter hierarchical errors as warnings."
+      ],
+      "error": [
+        {
+          "code": -10605,
+          "notes": "",
+          "message": "The JSON value is not included as a Name in mediaTypes.",
+          "value": "#/notices/2/links/0/type:text/html"
+        },
+        {
+          "code": -10605,
+          "notes": "",
+          "message": "The JSON value is not included as a Name in mediaTypes.",
+          "value": "#/notices/0/links/0/type:text/html"
+        },
+        {
+          "code": -10704,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/2/links/0/type validation [stdRdapLinksValidation].",
+          "value": "#/notices/2/links/0/type:text/html"
+        },
+        {
+          "code": -10605,
+          "notes": "",
+          "message": "The JSON value is not included as a Name in mediaTypes.",
+          "value": "#/links/0/type:application/rdap+json"
+        },
+        {
+          "code": -12217,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/2/links/0/type validation [stdRdapNoticesRemarksValidation].",
+          "value": "#/notices/2/links/0/type:text/html"
+        },
+        {
+          "code": -10605,
+          "notes": "",
+          "message": "The JSON value is not included as a Name in mediaTypes.",
+          "value": "#/links/1/type:application/rdap+json"
+        },
+        {
+          "code": -12217,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/1/links/0/type validation [stdRdapNoticesRemarksValidation].",
+          "value": "#/notices/1/links/0/type:text/html"
+        },
+        {
+          "code": -10605,
+          "notes": "",
+          "message": "The JSON value is not included as a Name in mediaTypes.",
+          "value": "#/notices/1/links/0/type:text/html"
+        },
+        {
+          "code": -12305,
+          "notes": "",
+          "message": "The value for the JSON name value is not a syntactically valid vcardArray.",
+          "value": "#/entities/0/entities/0/vcardArray/1/2:[\"tel\",{\"type\":\"voice\"},\"uri\",\"tel:8887802723\"]"
+        },
+        {
+          "code": -10704,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/1/links/0/type validation [stdRdapLinksValidation].",
+          "value": "#/notices/1/links/0/type:text/html"
+        },
+        {
+          "code": -12217,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/0/links/0/type validation [stdRdapNoticesRemarksValidation].",
+          "value": "#/notices/0/links/0/type:text/html"
+        },
+        {
+          "code": -10704,
+          "notes": "",
+          "message": "The value for the JSON name value does not pass #/notices/0/links/0/type validation [stdRdapLinksValidation].",
+          "value": "#/notices/0/links/0/type:text/html"
+        }
+      ]
+    }
+  }
+}
