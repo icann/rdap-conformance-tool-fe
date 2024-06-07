@@ -368,7 +368,6 @@
             const gltdRegistrar = ref(false);
             const gltdRegistry = ref(false);
             const thin = ref(false);
-            // const htmlServerResponse = ref('');
             const activeTab = ref('html');
             const copied = ref(false);
             const showCopyButton = ref(false);
@@ -503,7 +502,6 @@
 
             const clearResponse = () => {
                 serverResponse.value = '';
-                // htmlServerResponse.value = '';
                 highlightedServerResponse.value = '';
                 copied.value = false;
                 showCopyButton.value = false;
@@ -559,9 +557,6 @@
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
                             hasData.value = true;
-                            
-                            // let html = jsonToHtml(parsedResponse.data);
-                            // htmlServerResponse.value = html;
 
                             // Break the top-level keys into different variables
                             state.testedDate = parsedResponse.data.testedDate;
@@ -641,7 +636,6 @@
                 gltdRegistrar,
                 gltdRegistry,
                 thin,
-                // htmlServerResponse,
                 activeTab,
                 copyToClipboard,
                 copied,
