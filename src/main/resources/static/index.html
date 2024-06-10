@@ -26,11 +26,6 @@
 
         button.active {
             background-color: #ddd;
-            /* background-color: #f2ebeb; */
-        }
-
-        .tab-content {
-            /* margin-top: 20px; */
         }
 
         .tabs {
@@ -59,7 +54,6 @@
         }
 
         .tabs button.active {
-            /* background-color: #ccc; */
             background-color: #f2ebeb;
         }
 
@@ -81,10 +75,6 @@
             color: rgb(29, 132, 29);
         }
 
-        /* strong {
-            color: rgb(63, 60, 60);
-        } */
-
         .warning-class > .block-container {
             border: 1px solid #1a1919;
             padding: 5px;
@@ -96,13 +86,11 @@
         }
 
         .group-warning-class > p {
-            /* border: 1px solid #1a1919; */
             padding: 5px;
             padding-left: 10px;
         }
 
         .good-class > p {
-            /* border-bottom: 1px solid #1a1919; */
             padding: 5px;
             padding-left: 10px;
         }
@@ -124,33 +112,28 @@
         
 
         .odd-class .block-container {
-            background-color: #ffffff; /* white */
+            background-color: #ffffff; 
         }
 
         .even-class .block-container {
-            background-color: #efecec; /* grey */
+            background-color: #efecec; 
         }
-
 
         .key-large-font {
             font-size: 18px;
         }
 
         .topheader-info {
-            /* border: 1px solid #908c8c; */
             background-color: #f2ebeb;
-            /* background-color: #f9f5f5; */
             padding: 10px;
             margin-bottom: 25px;
             border-radius: 10px;
         }
 
         .result-container {
-            /* border-radius: 10px; */
-            /* border-top-left-radius: 10px; */
-            /* border-top-right-radius: 10px; */
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
+            overflow-x: auto;
         
         }
 
@@ -211,6 +194,12 @@
             margin-right: 10px; 
         }
 
+        .gloop {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
     </style>
 </head>
@@ -266,7 +255,7 @@
                         <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.receivedHttpStatusCode }}</div> <div class="basis-1/5">&nbsp;</div>  
                     </div>
                     <div class="flex flex-row">
-                        <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
+                        <div class="topheader-label basis-1/5">DefinitionIdentifier:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
                     </div>
                 </div>
 
