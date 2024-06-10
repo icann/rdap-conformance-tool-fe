@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.*;
 import org.icann.rdapconformance.validator.workflow.FileSystem;
 import org.icann.rdapconformance.validator.workflow.LocalFileSystem;
 import org.icann.rdapconformance.validator.workflow.rdap.http.RDAPHttpValidator;
@@ -62,9 +61,8 @@ public class Main {
       LOGGER.info("GltdRegistry: " + gltdRegistry);
       LOGGER.info("Thin: " + thin);
 
-      // Get the RDPT directory from the environment
-      String rdpt = System.getenv("RDPT");
-      // We shouldn't need a Callable, Spring runs in a separate thread
+      // Get the RDAPCT directory from the environment
+      String rdpt = System.getenv("RDAPCT");
       String resultsFile = null;
 
       try {
@@ -98,6 +96,7 @@ public class Main {
         LOGGER.info("Validator is finished, get the results");
         LOGGER.info("Results file: " + resultsFile);
         LOGGER.info("Results file is set.");
+
       } catch (Exception e) {
         // Handle exception
         List<String> output = Collections.singletonList("Error: " + e.getMessage());
