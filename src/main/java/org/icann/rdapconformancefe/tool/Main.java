@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.*;
 import org.icann.rdapconformance.validator.workflow.FileSystem;
 import org.icann.rdapconformance.validator.workflow.LocalFileSystem;
 import org.icann.rdapconformance.validator.workflow.rdap.http.RDAPHttpValidator;
@@ -30,7 +29,6 @@ public class Main {
 
   public static void main(String[] args) {
     LOGGER.info("Starting the application..");
-    // LOGGER.setLevel(Level.DEBUG);
     SpringApplication.run(Main.class, args);
   }
 
@@ -58,18 +56,15 @@ public class Main {
         return resultMap;
       }
 
-      // debug stuff Sysout b/c the redirects of streams messes with Springs logger
-      System.out.println("Received URL: " + url);
-      System.out.println("GltdRegistrar: " + gltdRegistrar);
-      System.out.println("GltdRegistry: " + gltdRegistry);
-      System.out.println("Thin: " + thin);
+      LOGGER.info("Received URL: " + url);
+      LOGGER.info("GltdRegistrar: " + gltdRegistrar);
+      LOGGER.info("GltdRegistry: " + gltdRegistry);
+      LOGGER.info("Thin: " + thin);
 
-      // Get the RDPT directory from the environment
-      String rdpt = System.getenv("RDPT");
-      Pattern pattern = Pattern.compile(".*  : (.*)$");
-
-      // We shouldn't need a Callable, Spring runs in a separate thread
+      // Get the RDAPCT directory from the environment
+      String rdpt = System.getenv("RDAPCT");
       String resultsFile = null;
+
       try {
         FileSystem fileSystem = new LocalFileSystem();
         WebRDAPConfiguration configuration = new WebRDAPConfiguration();
@@ -92,20 +87,22 @@ public class Main {
           configuration.setThin(true);
         }
 
-        System.out.println("Configuration is set up.");
+        LOGGER.info("Configuration is set up.");
         RDAPHttpValidator validator = new RDAPHttpValidator(configuration, fileSystem);
-        System.out.println("Validator is set up, run it");
+        LOGGER.info("Validator is set up, run it");
         Integer vret = validator.validate();
+        LOGGER.info("Validator returned: " + Integer.toString(vret));
         resultsFile = validator.getResultsPath();
-        System.out.println("Validator is finished, get the results");
-        System.out.println("Results file: " + resultsFile);
-        System.out.println("Results file is set.");
+        LOGGER.info("Validator is finished, get the results");
+        LOGGER.info("Results file: " + resultsFile);
+        LOGGER.info("Results file is set.");
+
       } catch (Exception e) {
         // Handle exception
         List<String> output = Collections.singletonList("Error: " + e.getMessage());
         output.forEach(System.out::println);
       }
-      System.out.println("Run is finished, setting up the data to return it.");
+      LOGGER.info("Run is finished, setting up the data to return it.");
 
       if (resultsFile != null) {
         try {
@@ -129,21 +126,22 @@ public class Main {
           newJsonObject.put("receivedHttpStatusCode", receivedHttpStatusCode);
           newJsonObject.put("definitionIdentifier", definitionIdentifier);
 
+          // Put the rest of the keys back in
           jsonObject
               .fields()
               .forEachRemaining(entry -> newJsonObject.put(entry.getKey(), entry.getValue()));
-
+          // put it all in the result map for the client
           resultMap.put("data", mapper.writeValueAsString(newJsonObject));
-          System.out.println("Got the file contents.");
+          LOGGER.info("Got the file contents.");
         } catch (IOException e) {
-          System.out.println("Results file error: " + e.getMessage());
+          LOGGER.info("Results file error: " + e.getMessage());
           resultMap.put("data", "error");
         }
       } else {
-        System.out.println("No results file.");
-        resultMap.put("data", "ok");
+        LOGGER.info("No results file.");
+        resultMap.put("data", "fail");
       }
-      System.out.println("Processed is finished, all set to return..");
+      LOGGER.info("Processed is finished, all set to return..");
       return resultMap;
     } // end of post
   } // end of class

@@ -26,11 +26,6 @@
 
         button.active {
             background-color: #ddd;
-            /* background-color: #f2ebeb; */
-        }
-
-        .tab-content {
-            /* margin-top: 20px; */
         }
 
         .tabs {
@@ -59,7 +54,6 @@
         }
 
         .tabs button.active {
-            /* background-color: #ccc; */
             background-color: #f2ebeb;
         }
 
@@ -81,10 +75,6 @@
             color: rgb(29, 132, 29);
         }
 
-        /* strong {
-            color: rgb(63, 60, 60);
-        } */
-
         .warning-class > .block-container {
             border: 1px solid #1a1919;
             padding: 5px;
@@ -96,13 +86,11 @@
         }
 
         .group-warning-class > p {
-            /* border: 1px solid #1a1919; */
             padding: 5px;
             padding-left: 10px;
         }
 
         .good-class > p {
-            /* border-bottom: 1px solid #1a1919; */
             padding: 5px;
             padding-left: 10px;
         }
@@ -124,33 +112,28 @@
         
 
         .odd-class .block-container {
-            background-color: #ffffff; /* white */
+            background-color: #ffffff; 
         }
 
         .even-class .block-container {
-            background-color: #efecec; /* grey */
+            background-color: #efecec; 
         }
-
 
         .key-large-font {
             font-size: 18px;
         }
 
         .topheader-info {
-            /* border: 1px solid #908c8c; */
             background-color: #f2ebeb;
-            /* background-color: #f9f5f5; */
             padding: 10px;
             margin-bottom: 25px;
             border-radius: 10px;
         }
 
         .result-container {
-            /* border-radius: 10px; */
-            /* border-top-left-radius: 10px; */
-            /* border-top-right-radius: 10px; */
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
+            overflow-x: auto;
         
         }
 
@@ -211,12 +194,18 @@
             margin-right: 10px; 
         }
 
+        .gloop {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
     </style>
 </head>
 <body class="bg-gray-100 h-screen antialiased leading-none">
     <div class="bg-blue-500 p-6 flex items-center justify-center">
-        <img src="https://itp.cdn.icann.org/assets/images/www-static/logo/icann-logo-tagline-en_680x152.webp" alt="icann_image" class="w-64 h-24 object-contain absolute left-6">
+        <img src="/icann-logo-tagline-white-en_680x152.webp" alt="icann_image" class="w-64 h-24 object-contain absolute left-6">
         <h1 class="text-4xl text-white">ICANN RDAP Conformance Tool</h1>
     </div>
     <div id="app" class="container mx-auto px-4 pt-10 mb-8">
@@ -266,7 +255,7 @@
                         <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.receivedHttpStatusCode }}</div> <div class="basis-1/5">&nbsp;</div>  
                     </div>
                     <div class="flex flex-row">
-                        <div class="topheader-label basis-1/5">StatusCode:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
+                        <div class="topheader-label basis-1/5">DefinitionIdentifier:</div> <div class="basis-3/5">{{ state.definitionIdentifier }}</div> <div class="basis-1/5">&nbsp;</div>  
                     </div>
                 </div>
 
@@ -368,7 +357,6 @@
             const gltdRegistrar = ref(false);
             const gltdRegistry = ref(false);
             const thin = ref(false);
-            const htmlServerResponse = ref('');
             const activeTab = ref('html');
             const copied = ref(false);
             const showCopyButton = ref(false);
@@ -380,7 +368,7 @@
                         return parsedResponse.data;
                     }
                     console.log('nope, not got it: ', parsedResponse);
-                    return JSON.stringify(parsedResponse, null, 2); // stringify with indentation
+                    return JSON.stringify(parsedResponse, null, 2); 
                 } catch(e) {
                     return serverResponse.value;
                 }
@@ -503,7 +491,6 @@
 
             const clearResponse = () => {
                 serverResponse.value = '';
-                htmlServerResponse.value = '';
                 highlightedServerResponse.value = '';
                 copied.value = false;
                 showCopyButton.value = false;
@@ -559,9 +546,6 @@
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
                             hasData.value = true;
-                            
-                            let html = jsonToHtml(parsedResponse.data);
-                            htmlServerResponse.value = html;
 
                             // Break the top-level keys into different variables
                             state.testedDate = parsedResponse.data.testedDate;
@@ -641,7 +625,6 @@
                 gltdRegistrar,
                 gltdRegistry,
                 thin,
-                htmlServerResponse,
                 activeTab,
                 copyToClipboard,
                 copied,
