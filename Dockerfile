@@ -14,6 +14,8 @@ RUN git clone https://github.com/icann/rdap-conformance-tool && \
 RUN mkdir /app && \
     git clone -b dev https://github.com/Cobenian/rdap-conformance-tool-fe && \
     cd rdap-conformance-tool-fe && \
+    ls -la && \ 
+    pwd && \
     chmod +x scripts/fix_versions.sh && \
     ./scripts/fix_versions.sh ../rdap-conformance-tool/version.txt && \
     mvn package && \
