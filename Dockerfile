@@ -1,6 +1,6 @@
 FROM alpine:latest
 RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
-RUN apk update && apk add openjdk21-jre maven git
+RUN apk update && apk add openjdk21-jre maven git bash
 
 LABEL maintainer="adam@cobenian.com"
 
@@ -12,12 +12,10 @@ RUN git clone https://github.com/icann/rdap-conformance-tool && \
     mvn install:install-file -Dfile=./tool/target/rdapct-$VERSION.jar -DgroupId=org.icann -DartifactId=rdap-conformance -Dversion=$VERSION -Dpackaging=jar
 
 RUN mkdir /app && \
-    git clone -b dev https://github.com/Cobenian/rdap-conformance-tool-fe && \
+    git clone https://github.com/Cobenian/rdap-conformance-tool-fe && \
     cd rdap-conformance-tool-fe && \
-    ls -la && \ 
-    pwd && \
     chmod +x scripts/fix_versions.sh && \
-    ./scripts/fix_versions.sh ../rdap-conformance-tool/version.txt && \
+    bash scripts/fix_versions.sh ../rdap-conformance-tool/version.txt && \
     mvn package && \
     VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) && \
     cp target/rdapctfe-$VERSION.jar /app/app.jar && \
