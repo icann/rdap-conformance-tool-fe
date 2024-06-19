@@ -56,6 +56,13 @@ public class Main {
         return resultMap;
       }
 
+      // clean the url
+      url = url.trim();
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        // even though the front-end checks for this already, play defense and be nice
+        url = "http://" + url;
+      }
+
       LOGGER.info("Received URL: " + url);
       LOGGER.info("GltdRegistrar: " + gltdRegistrar);
       LOGGER.info("GltdRegistry: " + gltdRegistry);
