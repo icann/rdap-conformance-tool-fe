@@ -212,7 +212,10 @@
         <!-- <h1 class="text-4xl mb-4 text-blue-500">ICANN RDAP Conformance Tool</h1> -->
         <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
         <form @submit.prevent="submitForm" class="mb-8">
-            <label for="url" class="block mb-2">URL</label>
+            <span style="display: flex; align-items: center;">
+                <label for="url" class="block mb-2">URL</label>
+                <span v-if="inputError" class="text-red-500 font-bold ml-2 mb-2">{{ inputError }}</span>
+              </span>
             <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
             <br>
             <div class="flex space-x-4 mt-4">
@@ -360,6 +363,7 @@
             const activeTab = ref('html');
             const copied = ref(false);
             const showCopyButton = ref(false);
+            const inputError = ref('');
     
             const formattedServerResponse = computed(() => {
                 try {
@@ -424,7 +428,6 @@
             }
 
             const highlightedServerResponse = computed(() => {
-                // console.log('[highlightedServerResponse]formattedServerResponse:', formattedServerResponse.value);
                 if (formattedServerResponse.value) {
                     try {
                         // Parse the JSON string to an object
@@ -504,23 +507,32 @@
                 state.results = {};
                 state.testedURI = '';
                 
+                // others
+                url.value = '';
+                inputError.value = '';
             };
     
             const submitForm = () => {
-                if (!url.value) {
-                    console.error('URL is required');
+                inputError.value = '';
+                let trimmedUrl = url.value.trim(); 
+                if (!trimmedUrl) {
+                    inputError.value = 'URL is required'; // Set error message
+                    return;
+                }
+                if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+                    inputError.value = 'URL must start with http:// or https://'; // Set error message
                     return;
                 }
 
                 isLoading.value = true;
 
-                console.log('gltdRegistrarValue:', gltdRegistrar);
-                const urlValue = encodeURIComponent(url.value);
+                const urlValue = encodeURIComponent(trimmedUrl);
                 const gltdRegistrarValue = gltdRegistrar.value ? 1 : 0;
                 const gltdRegistryValue = gltdRegistry.value ? 1 : 0;
                 const thinValue = thin.value ? 1 : 0;
 
-                console.log('urlValue:', urlValue);
+                console.log('gltdRegistrarValue:', gltdRegistrar);
+                console.log('urlValue:', trimmedUrl);
                 console.log('gltdRegistrarValue:', gltdRegistrarValue);
                 console.log('gltdRegistryValue:', gltdRegistryValue);
                 console.log('thinValue:', thinValue);
@@ -539,7 +551,6 @@
                     serverResponse.value = JSON.stringify(data);
                     isLoading.value = false;
                     formattedServerResponse.value = serverResponse.value;
-                    console.log("GAH:", formattedServerResponse.value);
 
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (typeof parsedResponse.data === 'string') {
@@ -630,7 +641,8 @@
                 copied,
                 copyAndSetCopied,
                 showCopyButton,
-                state
+                state,
+                inputError
             };
         }
     });
