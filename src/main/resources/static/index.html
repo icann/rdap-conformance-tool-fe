@@ -209,12 +209,12 @@
         <h1 class="text-4xl text-white">ICANN RDAP Conformance Tool</h1>
     </div>
     <div id="app" class="container mx-auto px-4 pt-10 mb-8">
-        <!-- <h1 class="text-4xl mb-4 text-blue-500">ICANN RDAP Conformance Tool</h1> -->
         <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
         <form @submit.prevent="submitForm" class="mb-8">
             <span style="display: flex; align-items: center;">
                 <label for="url" class="block mb-2">URL</label>
                 <span v-if="inputError" class="text-red-500 font-bold ml-2 mb-2">{{ inputError }}</span>
+                <span v-if="backendErrorMessage" class="text-red-700 font-bold ml-2 mb-2">{{ backendErrorMessage }}</span>
               </span>
             <input type="text" id="url" v-model="url" class="border p-4 h-12 w-full">
             <br>
@@ -244,7 +244,7 @@
             <button v-bind:class="{ active: activeTab === 'html' }" v-on:click="activeTab = 'html'">HTML</button>
             <button v-bind:class="{ active: activeTab === 'json' }" v-on:click="activeTab = 'json'">JSON</button>
         </div>
-
+       
         <div v-if="activeTab === 'html'" class="result-container tab-content bg-white border border-gray-300 p-4">
         <div v-if="hasData">
                 <div class="topheader-info">
@@ -364,6 +364,7 @@
             const copied = ref(false);
             const showCopyButton = ref(false);
             const inputError = ref('');
+            const backendErrorMessage = ref('');
     
             const formattedServerResponse = computed(() => {
                 try {
@@ -371,57 +372,18 @@
                     if (parsedResponse.data) {
                         return parsedResponse.data;
                     }
-                    console.log('nope, not got it: ', parsedResponse);
-                    return JSON.stringify(parsedResponse, null, 2); 
+                    if (parsedResponse.error) {
+                        console.log('Error: ', parsedResponse.error);
+                        backendErrorMessage.value = parsedResponse.error;
+                        return parsedResponse.error;
+                    }
+                    // else we fall through... unknown error
+                    backendErrorMessage.value = 'Unknown Error';
+                    return 'Unknown Error';
                 } catch(e) {
                     return serverResponse.value;
                 }
             });
-
-          
-            function jsonToHtml(json, depth = 0) {
-                console.log('jsonToHtml called');
-                if (depth > 5) {
-                    return '<li>Recursion limit reached</li>';
-                }
-                let html = '<ul class="alternating-colors block-container">';
-                for (let key in json) {
-                    let className = '';  // Reset className at the start of each iteration
-                    if (key === 'warning') {
-                        className = 'warning-class';
-                    } else if (key === 'error') {
-                        className = 'error-class';
-                    } else if (key === 'groupErrorWarning') {
-                        className = 'group-warning-class';
-                    } else if (key === 'groupOK') {
-                        className = 'good-class';
-                    }
-                    html += `<li class="${className}">`;
-
-                    // Check if the key is 'testedURI' or 'receivedHttpStatusCode'
-                    if (key === 'testedURI' || key === 'receivedHttpStatusCode' || key === "definitionIdentifier") {
-                        html += `<strong class="key-large-font">${escapeHtml(key)}: </strong>`;
-                    } else {
-                        html += `<strong>${escapeHtml(key)}: </strong>`;
-                    }
-                    if (Array.isArray(json[key])) {
-                        for (let value of json[key]) {
-                            if (typeof value === 'object' && value !== null) {
-                                html += jsonToHtml(value, depth + 1);
-                            } else {
-                                html += '<p>' + escapeHtml(String(value)) + '</p>';  // Wrap the value with a paragraph
-                            }
-                        }
-                    } else if (typeof json[key] === 'object' && json[key] !== null && !(json[key] instanceof String)) {
-                        html += jsonToHtml(json[key], depth + 1);
-                    } else {
-                        html += escapeHtml(String(json[key]));
-                    }
-                    html += '</li>';
-                }
-                html += '</ul>';
-                return html;
-            }
 
             function escapeHtml(html) {
                 return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -441,6 +403,7 @@
                         return hljs.highlight('json', escapedCode).value;
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
+                        backendErrorMessage.value = 'Error parsing JSON';
                         return '';
                     }
                 } else {
@@ -510,10 +473,13 @@
                 // others
                 url.value = '';
                 inputError.value = '';
+                backendErrorMessage.value = '';
             };
     
             const submitForm = () => {
                 inputError.value = '';
+                backendErrorMessage.value = '';
+
                 let trimmedUrl = url.value.trim(); 
                 if (!trimmedUrl) {
                     inputError.value = 'URL is required'; // Set error message
@@ -551,7 +517,8 @@
                     serverResponse.value = JSON.stringify(data);
                     isLoading.value = false;
                     formattedServerResponse.value = serverResponse.value;
-
+                    console.log('Server response:', serverResponse.value);
+                    
                     let parsedResponse = JSON.parse(serverResponse.value);
                     if (typeof parsedResponse.data === 'string') {
                         try {
@@ -578,11 +545,13 @@
                             state.notesCount = parsedResponse.data.results.notes.length;
                         } catch (e) {
                             console.error('Error parsing data property:', e);
+                            backendErrorMessage.value = 'Error parsing data property';
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    backendErrorMessage.value = 'Error fetching data';
                 });
             };
 
@@ -611,9 +580,11 @@
                             console.log('Copying PPJson to clipboard was successful!');
                         }, err => {
                             console.error('Could not copy PPJson text: ', err);
+                            backendErrorMessage.value = 'Could not copy JSON text';
                         });
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
+                    backendErrorMessage.value = 'Error parsing JSON';
                 }
             };
 
@@ -642,7 +613,8 @@
                 copyAndSetCopied,
                 showCopyButton,
                 state,
-                inputError
+                inputError,
+                backendErrorMessage
             };
         }
     });

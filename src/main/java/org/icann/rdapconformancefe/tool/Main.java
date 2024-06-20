@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.icann.rdapconformance.validator.workflow.FileSystem;
 import org.icann.rdapconformance.validator.workflow.LocalFileSystem;
+import org.icann.rdapconformance.validator.workflow.rdap.RDAPValidationStatus;
 import org.icann.rdapconformance.validator.workflow.rdap.http.RDAPHttpValidator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -47,12 +46,12 @@ public class Main {
 
       // Check the rules
       if ("1".equals(gltdRegistrar) && ("1".equals(gltdRegistry) || "1".equals(thin))) {
-        resultMap.put("data", "bad arguments");
+        resultMap.put("error", "bad arguments");
         return resultMap;
       }
 
       if ("1".equals(gltdRegistrar) && "1".equals(thin)) {
-        resultMap.put("data", "bad arguments");
+        resultMap.put("error", "bad arguments");
         return resultMap;
       }
 
@@ -70,6 +69,13 @@ public class Main {
 
       // Get the RDAPCT directory from the environment
       String rdpt = System.getenv("RDAPCT");
+      // if it's not set return error
+      if (rdpt == null) {
+        LOGGER.info("RDAPCT environment variable not set");
+        resultMap.put("error", "RDAPCT environment variable not set");
+        return resultMap;
+      }
+
       String resultsFile = null;
 
       try {
@@ -94,21 +100,32 @@ public class Main {
           configuration.setThin(true);
         }
 
-        LOGGER.info("Configuration is set up.");
+        LOGGER.info("Configuration is set up, run it");
         RDAPHttpValidator validator = new RDAPHttpValidator(configuration, fileSystem);
-        LOGGER.info("Validator is set up, run it");
         Integer vret = validator.validate();
         LOGGER.info("Validator returned: " + Integer.toString(vret));
-        resultsFile = validator.getResultsPath();
-        LOGGER.info("Validator is finished, get the results");
-        LOGGER.info("Results file: " + resultsFile);
-        LOGGER.info("Results file is set.");
+        // if the return code isn't 0 something went wrong, look it up and then tell the front-end
+        if (vret != 0) {
+          RDAPValidationStatus status = findStatusByValue(vret);
+          if (status != null) {
+            String explanation = "Error code: " + vret + " - " + status.getDescription();
+            resultMap.put("error", explanation);
+            LOGGER.info(explanation);
+          } else {
+            String explanation = "Unknown error code: " + vret;
+            resultMap.put("error", explanation);
+            LOGGER.info(explanation);
+          }
+          return resultMap;
+        }
 
+        resultsFile = validator.getResultsPath();
+        LOGGER.info("Results file: " + resultsFile);
       } catch (Exception e) {
-        // Handle exception
-        List<String> output = Collections.singletonList("Error: " + e.getMessage());
-        output.forEach(System.out::println);
+        LOGGER.info("Error: " + e.getMessage());
+        resultMap.put("error", e.getMessage());
       }
+
       LOGGER.info("Run is finished, setting up the data to return it.");
 
       if (resultsFile != null) {
@@ -142,14 +159,24 @@ public class Main {
           LOGGER.info("Got the file contents.");
         } catch (IOException e) {
           LOGGER.info("Results file error: " + e.getMessage());
-          resultMap.put("data", "error");
+          resultMap.put("error", "Unable to read results");
         }
       } else {
         LOGGER.info("No results file.");
-        resultMap.put("data", "fail");
+        resultMap.put("error", "Unable to read results");
       }
       LOGGER.info("Processed is finished, all set to return..");
       return resultMap;
     } // end of post
+
+    // Lookup the error codes so we can tell them what happened
+    private RDAPValidationStatus findStatusByValue(int value) {
+      for (RDAPValidationStatus status : RDAPValidationStatus.values()) {
+        if (status.getValue() == value) {
+          return status;
+        }
+      }
+      return null; // not found
+    }
   } // end of class
 } // end of main
