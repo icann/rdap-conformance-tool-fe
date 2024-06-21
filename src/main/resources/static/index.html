@@ -520,6 +520,13 @@
                     console.log('Server response:', serverResponse.value);
                     
                     let parsedResponse = JSON.parse(serverResponse.value);
+                    // check for error again, bail out early!
+                    if (parsedResponse.error) {
+                        console.log('Error: ', parsedResponse.error);
+                        backendErrorMessage.value = parsedResponse.error;
+                        return;
+                    }
+                    // else we shoud have something
                     if (typeof parsedResponse.data === 'string') {
                         try {
                             parsedResponse.data = JSON.parse(parsedResponse.data);
@@ -547,6 +554,10 @@
                             console.error('Error parsing data property:', e);
                             backendErrorMessage.value = 'Error parsing data property';
                         }
+                    } else {
+                        // We should never end up here, but just in case.
+                        console.error('No data property found in response');
+                        backendErrorMessage.value = 'No data property found in response';
                     }
                 })
                 .catch(error => {
