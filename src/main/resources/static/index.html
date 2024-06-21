@@ -476,10 +476,32 @@
                 backendErrorMessage.value = '';
             };
     
+
+            const clearOnSubmit = () => {
+                serverResponse.value = '';
+                highlightedServerResponse.value = '';
+                copied.value = false;
+                showCopyButton.value = false;
+                hasData.value = false;
+
+                // Reset the state object
+                state.testedDate = '';
+                state.groupOK = [];
+                state.definitionIdentifier = '';
+                state.groupErrorWarning = [];
+                state.results = {};
+                state.testedURI = '';
+                
+                // the only difference is we don't clear the url
+                inputError.value = '';
+                backendErrorMessage.value = '';
+            };
+
             const submitForm = () => {
                 inputError.value = '';
                 backendErrorMessage.value = '';
-
+                clearOnSubmit();
+                
                 let trimmedUrl = url.value.trim(); 
                 if (!trimmedUrl) {
                     inputError.value = 'URL is required'; // Set error message
