@@ -33,7 +33,6 @@ node('docker') {
             }
         }
 
-        
         stage('Docker Image') {
             withEnv(["IMAGE_BUILDER=docker"]) {
               utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk11')
