@@ -34,3 +34,10 @@ datasets
 jitpack/
 .classpath
 .java-version
+/.idea/.gitignore
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/saveactions_settings.xml
+/.idea/vcs.xml

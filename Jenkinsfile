@@ -37,7 +37,7 @@ node('docker') {
             withEnv(["IMAGE_BUILDER=docker"]) {
               utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk11')
             sh "cd ${WORKSPACE}/ && mvn -Ddocker.username=dockerpull -Ddocker.password=${utils.getUserPassword("dockerpull")} docker:build -Dmaven.test.skip=true"
-              utils.pushImageToRegistryTrunkBased(DTRRepo : 'rdap-conformance-tool-fe', dockerImageName : 'icann/rdap-conformance-tool-fe')
+              utils.pushImageToRegistryTrunkBased(DTRRepo : 'rdap-conformance-tool-fe', dockerImageName : 'icann/rdap-conformance-tool')
             }
         }
 
