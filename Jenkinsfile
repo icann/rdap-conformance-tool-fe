@@ -14,7 +14,7 @@ node('docker') {
         }
 
         stage('Run Tests') {
-            utils.mvn(args : 'clean install', jdkVersion: 'jdk11')
+            utils.mvn(args : 'clean install', jdkVersion: 'jdk17')
         }
 
         stage('SonarQube Analysis') {
@@ -35,7 +35,7 @@ node('docker') {
 
         stage('Docker Image') {
             withEnv(["IMAGE_BUILDER=docker"]) {
-              utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk11')
+              utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk17')
             sh "cd ${WORKSPACE}/ && mvn -Ddocker.username=dockerpull -Ddocker.password=${utils.getUserPassword("dockerpull")} docker:build -Dmaven.test.skip=true"
               utils.pushImageToRegistryTrunkBased(DTRRepo : 'rdapconformancefe', dockerImageName : 'icann/rdapconformancefe')
             }
