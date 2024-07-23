@@ -122,7 +122,7 @@
                             <alias>rdap-conformance</alias>
                             <name>icann/rdapconformancefe</name>
                             <build>
-                                <from>container-registry.icann.org/base-images/centos7-java11:latest</from>
+                                <from>container-registry.icann.org/base-images/centos8-java17:latest</from>
                                 <assembly>
                                     <inline>
                                         <fileSets>
