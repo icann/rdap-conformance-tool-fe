@@ -19,7 +19,7 @@
     </repositories>
 
     <groupId>org.icann.rdapconformancefe</groupId>
-    <artifactId>rdapctfe</artifactId>
+    <artifactId>rdapconformancefe</artifactId>
     <version>1.0</version>
 
     <properties>
