@@ -120,7 +120,7 @@
                     <images>
                         <image>
                             <alias>rdap-conformance</alias>
-                            <name>icann/rdap-conformance</name>
+                            <name>icann/rdapconformancefe</name>
                             <build>
                                 <from>container-registry.icann.org/base-images/centos7-java11:latest</from>
                                 <assembly>
@@ -141,7 +141,7 @@
                                     <tag>latest</tag>
                                 </tags>
                                 <cmd>
-                                    <shell>java -jar /maven/rdap-conformance-tool-${project.version}.jar -Dorg.apache.logging.log4j.simplelog.StatusLogger.level=TRACE</shell>
+                                    <shell>java -jar /maven/rdapconformancefe-${project.version}.jar -Dorg.apache.logging.log4j.simplelog.StatusLogger.level=TRACE</shell>
                                 </cmd>
                             </build>
                         </image>
