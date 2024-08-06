@@ -85,7 +85,7 @@ public class Main {
                 configuration.setUseLocalDatasets(true);
                 configuration.setUri(new URI(url));
 
-                URL configFile = this.getClass().getClassLoader().getResource("/sql");
+                URL configFile = this.getClass().getClassLoader().getResource("rdapct-config.json");
                 LOGGER.info("Configuration file: " + configFile.toString());
                 configuration.setConfigurationFile(configFile.toString());
                 configuration.setMaxRedirects(3);
