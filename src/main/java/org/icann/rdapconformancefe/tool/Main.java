@@ -1,20 +1,19 @@
 package org.icann.rdapconformancefe.tool;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.icann.rdapconformance.validator.workflow.FileSystem;
 import org.icann.rdapconformance.validator.workflow.LocalFileSystem;
 import org.icann.rdapconformance.validator.workflow.rdap.RDAPValidationStatus;
 import org.icann.rdapconformance.validator.workflow.rdap.http.RDAPHttpValidator;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,7 +68,7 @@ public class Main {
             LOGGER.info("Thin: " + thin);
 
             // Get the RDAPCT directory from the environment
-            String rdpt = System.getenv("RDAPCT");
+            String rdpt = "/app";
             // if it's not set return error
             if (rdpt == null) {
                 LOGGER.info("RDAPCT environment variable not set");
@@ -135,32 +134,39 @@ public class Main {
             if (resultsFile != null) {
                 try {
                     String fileContent = new String(Files.readAllBytes(Paths.get(resultsFile)));
-                    ObjectMapper mapper = new ObjectMapper();
-                    ObjectNode jsonObject = (ObjectNode) mapper.readTree(fileContent);
 
-                    // Get the values of the keys to be moved
-                    Object testedURI = jsonObject.get("testedURI");
-                    Object receivedHttpStatusCode = jsonObject.get("receivedHttpStatusCode");
-                    Object definitionIdentifier = jsonObject.get("definitionIdentifier");
+                    try {
+                        JSONObject jsonObject = new JSONObject(fileContent);
 
-                    // Remove the keys from the original object
-                    jsonObject.remove("testedURI");
-                    jsonObject.remove("receivedHttpStatusCode");
-                    jsonObject.remove("definitionIdentifier");
+                        // Get the values of the keys to be moved
+                        Object testedURI = jsonObject.get("testedURI");
+                        Object receivedHttpStatusCode = jsonObject.get("receivedHttpStatusCode");
+                        Object definitionIdentifier = jsonObject.get("definitionIdentifier");
 
-                    // Create a new LinkedHashMap and put the keys back in at the top
-                    LinkedHashMap<String, Object> newJsonObject = new LinkedHashMap<>();
-                    newJsonObject.put("testedURI", testedURI);
-                    newJsonObject.put("receivedHttpStatusCode", receivedHttpStatusCode);
-                    newJsonObject.put("definitionIdentifier", definitionIdentifier);
+                        // Remove the keys from the original object
+                        jsonObject.remove("testedURI");
+                        jsonObject.remove("receivedHttpStatusCode");
+                        jsonObject.remove("definitionIdentifier");
 
-                    // Put the rest of the keys back in
-                    jsonObject
-                        .fields()
-                        .forEachRemaining(entry -> newJsonObject.put(entry.getKey(), entry.getValue()));
-                    // put it all in the result map for the client
-                    resultMap.put("data", mapper.writeValueAsString(newJsonObject));
-                    LOGGER.info("Got the file contents.");
+                        // Create a new LinkedHashMap and put the keys back in at the top
+                        JSONObject newJsonObject = new JSONObject();
+                        newJsonObject.put("testedURI", testedURI);
+                        newJsonObject.put("receivedHttpStatusCode", receivedHttpStatusCode);
+                        newJsonObject.put("definitionIdentifier", definitionIdentifier);
+
+                        // Put the rest of the keys back in
+                        for (String key : jsonObject.keySet()) {
+                            Object nestedObject = jsonObject.get(key);
+                            newJsonObject.put(key, nestedObject);
+                        }
+
+                        resultMap.put("data", newJsonObject.toString());
+                        LOGGER.info("Got the file contents.");
+
+                    } catch (JSONException e) {
+                        LOGGER.info("Error: " + e.getMessage());
+                        resultMap.put("error", "Unable to read results");
+                    }
                 } catch (IOException e) {
                     LOGGER.info("Results file error: " + e.getMessage());
                     resultMap.put("error", "Unable to read results");
