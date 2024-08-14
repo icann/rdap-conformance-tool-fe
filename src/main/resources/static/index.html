@@ -209,7 +209,10 @@
         <h1 class="text-4xl text-white">ICANN RDAP Conformance Tool</h1>
     </div>
     <div id="app" class="container mx-auto px-4 pt-10 mb-8">
-        <p class="text-lg mb-8">Welcome to RDAP Conformance</p>
+        <p class="text-lg mb-8">The ICANN RDAP Conformance Tool is for diagnostic purposes to aid RDAP registry operators,
+        especially gTLD registries and registrars. The results provided by this tool may not reflect all conformance
+        requirements of the RDAP RFCs or the ICANN gTLD RDAP Profile. For more information, please send email to
+        globalsupport@icann.org.</p>
         <form @submit.prevent="submitForm" class="mb-8">
             <span style="display: flex; align-items: center;">
                 <label for="url" class="block mb-2">URL</label>
@@ -220,16 +223,20 @@
             <br>
             <div class="flex space-x-4 mt-4">
                 <div>
-                    <label for="gltdRegistrar" class="block mb-2">GltdRegistrar</label>
+                    <label for="gltdRegistrar" class="block mb-2">GTLD Registrar</label>
                     <input type="checkbox" id="gltdRegistrar" v-model="gltdRegistrar" @change="console.log('gltdRegistrar:', gltdRegistrar)" class="mb-4">
                 </div>
                 <div>
-                    <label for="gltdRegistry" class="block mb-2">GltdRegistry</label>
+                    <label for="gltdRegistry" class="block mb-2">GTLD Registry</label>
                     <input type="checkbox" id="gltdRegistry" v-model="gltdRegistry" @change="console.log('gltdRegistry:', gltdRegistry)" class="mb-4">
                 </div>
                 <div>
-                    <label for="thin" class="block mb-2">Thin</label>
+                    <label for="thin" class="block mb-2">Thin Registry</label>
                     <input type="checkbox" id="thin" v-model="thin" @change="console.log('thin:', thin)" class="mb-4" :disabled="!gltdRegistry">
+                </div>
+                <div>
+                    <label for="gtldProfile2019" class="block mb-2">2019 GTLD Profile</label>
+                    <input type="checkbox" id="gtldProfile2019" v-model="gtldProfile2019" @change="console.log('gtldProfile2019:', gtldProfile2019)" class="mb-4">
                 </div>
             </div>
             <div class="flex justify-start" v-if="!isLoading">
@@ -360,6 +367,7 @@
             const gltdRegistrar = ref(false);
             const gltdRegistry = ref(false);
             const thin = ref(false);
+            const gtldProfile2019 = ref(false);
             const activeTab = ref('html');
             const copied = ref(false);
             const showCopyButton = ref(false);
@@ -518,14 +526,16 @@
                 const gltdRegistrarValue = gltdRegistrar.value ? 1 : 0;
                 const gltdRegistryValue = gltdRegistry.value ? 1 : 0;
                 const thinValue = thin.value ? 1 : 0;
+                const gtldProfile2019Value = gtldProfile2019.value ? 1 : 0;
 
                 console.log('gltdRegistrarValue:', gltdRegistrar);
                 console.log('urlValue:', trimmedUrl);
                 console.log('gltdRegistrarValue:', gltdRegistrarValue);
                 console.log('gltdRegistryValue:', gltdRegistryValue);
                 console.log('thinValue:', thinValue);
+                console.log('gtldProfile2019:', gtldProfile2019Value);
 
-                const body = `url=${urlValue}&gltdRegistrar=${gltdRegistrarValue}&gltdRegistry=${gltdRegistryValue}&thin=${thinValue}`;
+                const body = `url=${urlValue}&gltdRegistrar=${gltdRegistrarValue}&gltdRegistry=${gltdRegistryValue}&thin=${thinValue}&gtldProfile2019=${gtldProfile2019Value}`;
 
                 fetch('/check', {
                     method: 'POST',
@@ -640,6 +650,7 @@
                 gltdRegistrar,
                 gltdRegistry,
                 thin,
+                gtldProfile2019,
                 activeTab,
                 copyToClipboard,
                 copied,

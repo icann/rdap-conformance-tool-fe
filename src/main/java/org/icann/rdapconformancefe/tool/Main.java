@@ -40,7 +40,8 @@ public class Main {
             @RequestParam String url,
             @RequestParam(required = false) String gltdRegistrar,
             @RequestParam(required = false) String gltdRegistry,
-            @RequestParam(required = false) String thin) {
+            @RequestParam(required = false) String thin,
+            @RequestParam(required = false) String gtldProfile2019) {
 
             Map<String, String> resultMap = new HashMap<>();
 
@@ -66,6 +67,7 @@ public class Main {
             LOGGER.info("GltdRegistrar: " + gltdRegistrar);
             LOGGER.info("GltdRegistry: " + gltdRegistry);
             LOGGER.info("Thin: " + thin);
+            LOGGER.info("GTLD 2019 Profile: " + gtldProfile2019);
 
             // Get the RDAPCT directory from the environment
             String rdpt = "/app";
@@ -101,6 +103,10 @@ public class Main {
 
                 if ("1".equals(thin)) {
                     configuration.setThin(true);
+                }
+
+                if ("1".equals(gtldProfile2019)) {
+                    configuration.setUseRdapProfileFeb2019(true);
                 }
 
                 LOGGER.info("Configuration is set up, run it");
