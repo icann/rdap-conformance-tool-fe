@@ -1,6 +1,21 @@
+#!groovy
 @Library('ICANN_LIB') _
 
 properties([[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '14', artifactNumToKeepStr: '10', daysToKeepStr: '14', numToKeepStr: '10']]])
+
+GString createChartVersion(chartFolder, utils) {
+    GString chartVersionCommand = "grep -m1 '^[[:space:]]*version:' ${chartFolder}/Chart.yaml | awk -F ':' '{print \$2}' | sed 's/^[[:space:]]*//'"
+    def chartVersion = sh(script: chartVersionCommand, returnStdout: true).trim()
+    def tag = utils.generateDockerTag()
+    GString commitVersion = "${chartVersion}-${tag}"
+    return commitVersion
+}
+
+def customPushHelmChart(Map map = [:]) {
+    withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+        sh "helm push-artifactory ${map['directory']} https://artifactory.icann.org/artifactory/icann-helm-local --path ${map['artifactoryPath']} --skip-reindex --username $USERNAME --password $PASSWORD --version ${map['customVersion']}"
+    }
+}
 
 node('docker') {
 
