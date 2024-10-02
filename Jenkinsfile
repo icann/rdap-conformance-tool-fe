@@ -41,6 +41,18 @@ node('docker') {
             }
         }
 
+        stage('Helm Charts') {
+            if("${env.BRANCH_NAME}" != 'master' ) {
+               echo "Feature branch not deploying helm charts"
+               return
+            }
+            if(utils.hasFolderChanged("helm/rdap-conformance-tool-fe")) {
+               GString chartVersion = createChartVersion("helm/rdap-conformance-tool-fe", utils)
+               echo "Deploying helm chart ${chartVersion}"
+               customPushHelmChart(directory: "helm/rdap-conformance-tool-fe", artifactoryPath: "icann/rdap-conformance-tool-fe", customVersion: chartVersion)
+            }
+        }
+
     } catch(e) {
         currentBuild.result = "FAILURE"
         throw e

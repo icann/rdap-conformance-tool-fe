@@ -1,0 +1,10 @@
+environment: qa
+
+name: rdapconformance-qa
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+
+env:
+  spring_profiles_active: qa
+  RDAPCT: '/app'

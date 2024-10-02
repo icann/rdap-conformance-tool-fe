@@ -1,0 +1,10 @@
+environment: uat
+
+name: rdapconformance-uat
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+
+env:
+  spring_profiles_active: uat
+  RDAPCT: '/app'
