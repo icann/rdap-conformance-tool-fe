@@ -56,6 +56,29 @@ node('docker') {
             }
         }
 
+        stage('Trigger Webhook') {
+            try {
+                if ("${env.BRANCH_NAME}" == 'master') {
+                    imageTag = utils.generateDockerTag('dev');
+                    artifacts = [
+                        [
+                            "type"     : "docker/image",
+                            "name"     : "container-registry-dev.icann.org/icann/rdapconformancefe",
+                            "version"  : imageTag,
+                            "reference": "container-registry-dev.icann.org/icann/rdapconformancefe:${imageTag}"
+                        ]
+                    ]
+
+                    utils.spinnakerTrigger(webhook: 'rdapconformance-qa', artifacts: artifacts)
+                } else {
+                     echo "not master branch - skipping"
+                }
+            } catch (e) {
+                utils.sendNotification(slackChannel: 'ts-eng-builds', sendSlackMessage: true, buildStatus: 'FAILED')
+                throw e
+            }
+        }
+
         stage('Helm Charts') {
             if("${env.BRANCH_NAME}" != 'master' ) {
                echo "Feature branch not deploying helm charts"
