@@ -104,6 +104,10 @@ public class WebRDAPConfiguration implements RDAPValidatorConfiguration {
     this.isThin = isThin;
   }
 
+  public void setUseRdapProfileFeb2019(boolean useRdapProfileFeb2019) {
+    this.useRdapProfileFeb2019 = useRdapProfileFeb2019;
+  }
+
   @Override
   public RDAPQueryType getQueryType() {
     return this.queryType;
