@@ -1,6 +1,6 @@
 environment: qa
 
-name: rdapconformance-qa-test
+name: rdapconformance-qa
 spec:
   replicas: 1
   revisionHistoryLimit: 0
