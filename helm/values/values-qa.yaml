@@ -6,5 +6,5 @@ spec:
   revisionHistoryLimit: 0
 
 env:
-  spring_profiles_active: uat
+  spring_profiles_active: qa
   RDAPCT: '/app'
