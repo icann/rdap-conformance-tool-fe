@@ -29,12 +29,12 @@ node('docker') {
         }
 
         stage('Run Tests') {
-            utils.mvn(args : 'clean install', jdkVersion: 'jdk17')
+            utils.mvn(args : 'clean install', jdkVersion: 'jdk21')
         }
 
         stage('SonarQube Analysis') {
             withSonarQubeEnv('ICANN') {
-                utils.mvn(sonarAnalysis: true)
+                utils.mvn(args: 'sonar:sonar -Dsonar.java.source=21 -Dsonar.java.target=21', jdkVersion: 'jdk21')
             }
         }
 
@@ -50,7 +50,7 @@ node('docker') {
 
         stage('Docker Image') {
             withEnv(["IMAGE_BUILDER=docker"]) {
-              utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk17')
+              utils.mvn(args: 'clean package spring-boot:repackage -Dmaven.test.skip=true', jdkVersion: 'jdk21')
             sh "cd ${WORKSPACE}/ && mvn -Ddocker.username=dockerpull -Ddocker.password=${utils.getUserPassword("dockerpull")} docker:build -Dmaven.test.skip=true"
               utils.pushImageToRegistryTrunkBased(DTRRepo : 'rdapconformancefe', dockerImageName : 'icann/rdapconformancefe')
             }
